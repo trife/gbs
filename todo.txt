@@ -1,0 +1,24 @@
+knitr to output complete summary
+read hap
+hapjoin
+hapconvert
+	mega4
+	FST
+	STRUCTURE - maybe use R version
+	r/qtl
+	AB conversion (qtl)
+	gapit
+filtersummary
+merge calls
+allele match
+	identify duplicates
+	venn diagram
+diversity
+	nei
+	fst with pop chopping
+graph
+	pca
+	cluster analysis
+	dendrograms
+LD plots (need reference position)
+	Inter marker distance

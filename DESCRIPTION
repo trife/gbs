@@ -1,0 +1,10 @@
+Package: gbs
+Title: Tools for Genotyping-By-Sequencing Data
+Version: 0.0.0.9000
+Authors@R: c(person("Trevor", "Rife", , "trife@ksu.edu", role = c("aut", "cre")),person("Narinder", "Singh", , "trife@ksu.edu", role = c("aut")))
+Description: This package is used for processing and analyzing GBS data.
+Depends:
+    R (>= 3.0.3)
+License: GPL2
+LazyData: false
+RoxygenNote: 5.0.1
