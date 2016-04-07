@@ -5,6 +5,8 @@ Authors@R: c(person("Trevor", "Rife", , "trife@ksu.edu", role = c("aut", "cre"))
 Description: This package is used for processing and analyzing GBS data.
 Depends:
     R (>= 3.0.3)
+Imports:
+   data.table
 License: GPL2
 LazyData: false
 RoxygenNote: 5.0.1
