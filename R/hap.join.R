@@ -12,7 +12,7 @@
 #' 
 #' @export
 
-hap.join <- function(hap.dir){
+hap.join <- function(hap.dir,delim="\t"){
   joined = NULL
   hap = NULL
   fileList = list.files(path=hap.dir,full.names=TRUE)
@@ -25,13 +25,14 @@ hap.join <- function(hap.dir){
     d = d[,1:dim(d)[2]-1]
     colnames(d)=cnHAP
     d$QCcode = as.numeric(as.character(d$QCcode))
-    print(nrow(d))
+    print(paste(nrow(d)," in file ",i,sep=""))
     d$center=i
     joined = rbind(joined,d)
-    print(nrow(joined))
+    
   }
   
-  #TODO clean to unique only
+  print(paste(nrow(joined)," markers total.",sep=""))
+  
   #TODO print stats
   #TODO check data to verify
   #TODO print out stats about dfs

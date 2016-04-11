@@ -4,9 +4,9 @@ install(gbs)
 
 hap.join()
 
-hap.read()
+hap = hap.read("data")
 
-filter.summary()
+hap = filter.summary(hap)
 
 allele.match()
 

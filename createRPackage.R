@@ -11,4 +11,6 @@ library("gbs")
 
 help(allele.match)
 
+install_github("trife/gbs")
+
 # R CMD Rd2pdf gbs/
