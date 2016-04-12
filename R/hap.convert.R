@@ -39,23 +39,23 @@ hap.convert <- function(hap,delim,exp.format=c("MEGA4","FST","STRUCTURE","RQTL",
     
   }
   
-  if(any(methods=="MEGA4")){
+  if(any(exp.format=="MEGA4")){
     output$MEGA4 = MEGA4.F()
   }
   
-  if(any(methods=="FST")){
+  if(any(exp.format=="FST")){
     output$MEGA4 = FST.F()
   }
   
-  if(any(methods=="RQTL")){
+  if(any(exp.format=="RQTL")){
     output$MEGA4 = RQTL.F()
   }
   
-  if(any(methods=="AB")){
+  if(any(exp.format=="AB")){
     output$MEGA4 = AB.F()
   }
   
-  if(any(methods=="GAPIT")){
+  if(any(exp.format=="GAPIT")){
     output$MEGA4 = GAPIT.F()
   }
   

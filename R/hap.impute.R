@@ -5,9 +5,8 @@
 #' @author Narinder Singh, \email{nss470@@ksu.edu}
 #' @author Trevor Rife, \email{trife@@ksu.edu}
 #' 
-#' @param hap.obj the hap object to convert
-#' @param delim the deliminator used in the file
-#' @param exp.format the format you wish to convert the hap object to
+#' @param hap.obj the hap object to impute
+#' @param method the method to use for imputation
 #' @param parents columns for the two parents being used to convert to RQTL and AB format
 #' 
 #' @keywords 
@@ -16,46 +15,31 @@
 #' 
 #' @export
 
-hap.impute <- function(hap,delim,exp.format=c("MEGA4","FST","STRUCTURE","RQTL","AB","GAPIT"),parents=null){
+hap.impute <- function(hap,method=c("mean","EM","RF"),parents=null){
+  require(rrBLUP)
   hap.obj = hap
 
-  MEGA4.F = function(...){
+  mean.F = function(...){
     
   }
   
-  FST.F = function(...){
+  EM.F = function(...){
     
   }
   
-  RQTL.F = function(...){
+  RF.F = function(...){
     
   }
   
-  AB.F = function(...){
-    
-  }
-  
-  GAPIT.F = function(...){
-    
-  }
-  
-  if(any(methods=="MEGA4")){
-    output$MEGA4 = MEGA4.F()
-  }
-  
-  if(any(methods=="FST")){
-    output$MEGA4 = FST.F()
-  }
-  
-  if(any(methods=="RQTL")){
+  if(any(methods=="mean")){
     output$MEGA4 = RQTL.F()
   }
   
-  if(any(methods=="AB")){
+  if(any(methods=="EM")){
     output$MEGA4 = AB.F()
   }
   
-  if(any(methods=="GAPIT")){
+  if(any(methods=="RF")){
     output$MEGA4 = GAPIT.F()
   }
   

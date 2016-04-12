@@ -14,6 +14,8 @@
 
 
 gbs.graph <- function(hap) {
+  ## TODO combine with knitr for html output
+  
   ## Minor allele frequency
   MAF = apply(cbind(hap$alleleA, hap$alleleB), 1, min)/ apply(cbind(hap$alleleA, hap$alleleB, hap$het), 1, sum)
   hist(MAF, xlab="minor allele freq", ylab="# snps")

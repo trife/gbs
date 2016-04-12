@@ -38,12 +38,10 @@ allele.match <- function(hap){
     id[i,i:ncol(id)] <- id_pc
   }
   
-  
   rm(common, id_ct, id_pc, line1, line2, shared)
   
   rownames(id)=colnames(allele.match)
   colnames(id)=colnames(allele.match)
-  id[1:10,1:10]
   
-  #TODO change output types
+  invisible(id)
 }

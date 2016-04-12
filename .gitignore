@@ -3,3 +3,6 @@
 .RData
 gbs.Rproj
 .Rhistory
+full_test.R
+createRPackage.R
+todo.txt

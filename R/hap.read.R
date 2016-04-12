@@ -14,10 +14,19 @@
 #'
 #' @export
 
-hap.read <- function(file,delim="\t",data){
-  #TODO if folder passed, use hap.join, else read in data
+hap.read <- function(file,delim="\t"){
+  if(!file.exists(file)) {
+    stop("File or folder does not exist.")
+  }
 
-  hap = fread(file=file, sep=delim,check.names=FALSE,header=TRUE, data.table = F)
+  # If folder passed, use hap.join, else read data
+  if(file.info(file)$isdir) {
+    hap = hap.join(file,delim)
+  }
+
+  if(!file.info(file)$isdir) {
+    hap = fread(file=file, sep=delim,check.names=FALSE,header=TRUE, data.table = F)
+  }
 
   #TODO check data
 
