@@ -2,7 +2,7 @@
 #' 
 #' Takes in hap object and impute markers 
 #' 
-#' @author Narinder Singh, \email{nss470@@ksu.edu}
+#' @author Chris Gaynor
 #' @author Trevor Rife, \email{trife@@ksu.edu}
 #' 
 #' @param hap.obj the hap object to impute
@@ -15,33 +15,36 @@
 #' 
 #' @export
 
-hap.impute <- function(hap,method=c("mean","EM","RF"),parents=null){
-  require(rrBLUP)
+hap.impute <- function(hap,method=c("mean","EM","RF","median","KNN","SVD"),parents=null){
   hap.obj = hap
 
-  mean.F = function(...){
-    
-  }
-  
-  EM.F = function(...){
-    
-  }
-  
-  RF.F = function(...){
-    
-  }
-  
   if(any(methods=="mean")){
-    output$MEGA4 = RQTL.F()
+    data[[1]] = rrBLUP::A.mat(hap.obj, impute.method="mean", n.core=n.core, return.imputed=TRUE, ...)$imputed
+  }
+  
+  if(any(methods=="median")) {
+    data[[1]] = randomForest::na.roughfix(hap.obj)
   }
   
   if(any(methods=="EM")){
-    output$MEGA4 = AB.F()
+    data[[1]] = rrBLUP::A.mat(hap.obj, impute.method="EM", n.core=n.core, return.imputed=TRUE, ...)$imputed
   }
   
   if(any(methods=="RF")){
-    output$MEGA4 = GAPIT.F()
+    cl = parallel::makeCluster(n.core)
+    registerDoParallel(cl)
+    data[[1]] = missForest::missForest(hap.obj, parallelize="variables", ...)$ximp
+    parallel::stopCluster(cl)
+    rm(cl)
   }
   
-  #TODO change output types
+  if(any(methods=="KNN")){
+    #TODO
+  }
+  
+  if(any(methods=="SVD")){
+    #TODO
+  }
+  
+  invisible(data)
 }

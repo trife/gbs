@@ -40,6 +40,7 @@ filter.summary <- function(hap,project="gbs",output=c("hap","geno")){
   }
   
   ## Rename some columns
+  ## TODO we should just recalculate all of these instead of assuming they exist
   colnames(hap)[colnames(hap)=="assembly"] = "snp_pos"
   colnames(hap)[colnames(hap)=="protLSID"] = "alleleA"
   colnames(hap)[colnames(hap)=="assayLSID"] = "alleleB"
@@ -52,14 +53,19 @@ filter.summary <- function(hap,project="gbs",output=c("hap","geno")){
   hap = hap[,colnames(hap)!="pos"]
   hap = hap[,colnames(hap)!="strand"]
   hap = hap[,!grepl("blank",colnames(hap), ignore.case=TRUE)]
-  colnames(hap)
-  
-  #TODO output hap or geno
-  if(any(output=="hap")) {
-    invisible(hap)
-  }
+
+  ## Calculate and add summary stats
+  MAF = apply(cbind(hap$alleleA, hap$alleleB), 1, min)/ apply(cbind(hap$alleleA, hap$alleleB, hap$het), 1, sum)
+  percentHET = hap$het / apply(cbind(hap$alleleA, hap$alleleB, hap$het), 1, sum)
+  hap$present = as.numeric(as.character(hap$present))
+  hap = cbind(hap[,c(1:8)], MAF, percentHET, hap[,c(9:ncol(hap))])
+
+  #TODO redo this to output to list
+  hapReturn = list()
+
   if(any(output=="geno")) {
     hap01 = hap
+    hap01[,12:ncol(hap01)]=NA
     
     ## Define allele a and allele b
     a = substring(hap$alleles,1,1)
@@ -73,12 +79,15 @@ filter.summary <- function(hap,project="gbs",output=c("hap","geno")){
     hap01[hap == b] = "1"
     hap01[hap == "H"] = "0"
     
-    ## TODO convert to numeric
-    
-    
     ## Calculate A matrix using rrBLUP
     geno = as.matrix(hap01[,12:ncol(hap01)])
+    class(geno) = "numeric"
     geno = t(geno)
-    invisible(geno)
+    hapReturn$geno = geno
   }
+  if(any(output=="hap")) {
+    hapReturn$hap = hap
+  }
+  
+  hapReturn
 }

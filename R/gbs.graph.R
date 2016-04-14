@@ -3,8 +3,10 @@
 #' Calculates and graphs relevant stats for a hap object
 #' 
 #' @author Trevor Rife, \email{trife@@ksu.edu}
+#' @author Jared Crain, \email{jcrain@@ksu.edu}
 #' 
-#' @param hap the hap object to be processed
+#' @param hap the geno object to be processed
+#' @param file the output file name
 #' 
 #' @keywords
 #' 
@@ -13,32 +15,42 @@
 #' @export
 
 
-gbs.graph <- function(hap) {
-  ## TODO combine with knitr for html output
+gbs.graph <- function(hap,geno,file) {
+  ## TODO start pdf and write all to pdf
+  pdf(file)
   
-  ## Minor allele frequency
-  MAF = apply(cbind(hap$alleleA, hap$alleleB), 1, min)/ apply(cbind(hap$alleleA, hap$alleleB, hap$het), 1, sum)
-  hist(MAF, xlab="minor allele freq", ylab="# snps")
+  ## Check for blank wells, make histogram if they exist
+  if(any(grepl("BLANK",colnames(hap)))) {
+    missing.blank = hap[,grepl("BLANK",colnames(hap))]=="N"
+    blank = as.matrix(apply(!missing.blank, 2, sum))
+    
+    snptot=colSums(hap[,12:ncol(hap)]!="N")
+    reads=sum(snptot) #total number of reads
+    sum_reads=c(snptot,blank)
+    
+    hist(snptot, xlim=c(0,13000), breaks=seq(0,13000, by=1000), main="SNPs number per Sample", xlab="Number of SNPs", sub="Blank wells in red")
+    hist(blank, col="red",xlim=c(0,13000), breaks=seq(0,13000, by=1000),add=TRUE )
+    
+    hist(sum_reads/reads*100, main="% of reads for each sample", ylab="Number of Samples", xlab="Percent of total reads", sub="0.6=0.6%", xlim=c(0,0.6), breaks=seq(0, 0.6, 0.05))
+    hist(blank/reads*100, add=TRUE, col="red",xlim=c(0,0.6), breaks=seq(0, 0.6, 0.05))
+  }
   
-  ## Percent heterozygous
-  percentHET = hap$het / apply(cbind(hap$alleleA, hap$alleleB, hap$het), 1, sum)
-  hist(percentHET)
-  hist(hap$het)
-  het = hap$het / (hap$alleleA + hap$alleleB + hap$het)
-  hist(het, xlab="minor allele freq", ylab="# snps")
+  #make graphs of populations parameters
+  hist(hap$MAF, main="Minor Allele Frequency", xlab="MAF Value", ylab="Number of SNPs")
+  hist(hap$present, main="% Present of Each SNP", xlab="Percent Present", ylab="Number of SNPs")
+  hist(hap$het, main="Number of Heterozygotes", xlab="Number of heterozygous per SNP loci", ylab="Number of SNPs")
+  hist(hap$percentHET, main="Percent Heterozygous", xlab="Percent Heterozygous", ylab="Number of SNPs")
   
-  ## Add to hap
-  hap = cbind(hap[,c(1:8)], MAF, percentHET, hap[,c(9:ncol(hap))])
+  #make dendrogram
+  buster_dend=dendrogram(geno)
+  buster_data=dendrapply(as.dendrogram(buster_dend))
+  plot(buster_data, main="GBS Dendroram", type="rectangle")
+  plot(as.phylo(buster_dend), type="fan", cex=0.3)
   
-  ## Percent present
-  hap$present = as.numeric(as.character(hap$present))
-  sum(hap$present>=0.8)
-  hist(hap$present,56)
-  dim(hap)
-  
-  ## SNPs per line
-  hapNA = hap=="N"
-  hapNA[1:3,]
-  lineData = apply(hap!="N", 2, sum)[-c(1:13)]
-  hist(lineData, main=project, xlab="# SNPs", ylab="# lines",18)
+  #make level plot of all filtered data
+  fmatch=allele.match(hap[,12:ncol(hap)])
+  fmatch[lower.tri(fmatch)]=NA
+  lattice::levelplot(fmatch, main="Allele matching") #TODO change color scheme
+
+  dev.off()
 }

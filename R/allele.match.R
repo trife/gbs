@@ -4,7 +4,9 @@
 #' 
 #' @author Narinder Singh, \email{nss470@@ksu.edu}
 #' 
-#' @param hap a hap object
+#' @param hap a matrix or data frmae consisting consisting of rows (markers) and columns (individuals)
+#' @param result return the number of matched calls, percent identitiy, or both
+#' @param geno optional vector to include non-standard genotype calls
 #' 
 #' @keywords alleles, hap
 #' 
@@ -12,15 +14,29 @@
 #' 
 #' @export
 
-allele.match <- function(hap){
-  hap.obj = hap
-  allele.match = hap.obj[,-c(1:11)]
-  allele.match[allele.match=="H" | allele.match=="N"]=NA
-  dim(allele.match)
-  allele.match[1:5,1:20]
+allele.match <- function(hap,result=c("count","percent"),geno){
+  if(!"count"%in%result && !"percent"%in%result) {
+    stop("The result option is not set.")
+  }
   
-  nS = ncol(allele.match)
-  id = matrix(NA, nrow=nS, ncol=nS)
+  allele.match <- hap
+  dim(allele.match)
+  
+  #Check to ensure input matrix has correct format
+  genotypes <- c(NA,"A","T","C","G","H","N")
+  
+  if(!missing(geno)) {
+    genotypes <- c(genotypes, geno)
+  }
+  
+  if(!all(apply(allele.match,MARGIN=2,function(x) x%in%genotypes))) {
+    stop("Non genotypes detected in input matrix. Edit the geno parameter.")
+  }
+  
+  nS <- ncol(allele.match)
+  id <- matrix(NA, nrow=nS, ncol=nS)
+  
+  pb = txtProgressBar(min = 0, max = nrow(id), initial = 0) 
   
   ## New
   for (i in 1:nrow(id)){
@@ -31,17 +47,22 @@ allele.match <- function(hap){
       line2 = as.character(allele.match[,j])
       shared = line1!="N" & line2!="N" & line1!="H" & line2!="H"
       common = line1[shared] == line2[shared]
-      id_pc[j-i+1] <- sum(common, na.rm = T)/sum(shared, na.rm = T)
-      id_ct[j-i+1] <- sum(shared, na.rm = T)
+      if(any(result == "count")) {
+        id_pc[j-i+1] <- sum(common, na.rm = T)/sum(shared, na.rm = T)
+      }
+      
+      if(any(result == "percent")) {
+        id_ct[j-i+1] <- sum(shared, na.rm = T) 
+      }
     }
     id[i:ncol(id),i] <- id_ct
     id[i,i:ncol(id)] <- id_pc
+    
+    setTxtProgressBar(pb,i)
   }
-  
-  rm(common, id_ct, id_pc, line1, line2, shared)
   
   rownames(id)=colnames(allele.match)
   colnames(id)=colnames(allele.match)
   
-  invisible(id)
+  id
 }
