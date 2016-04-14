@@ -2,12 +2,11 @@
 #' 
 #' Takes in hap files and converts them to the formats needed for other analysis programs 
 #' 
-#' @author Narinder Singh, \email{nss470@@ksu.edu}
 #' @author Trevor Rife, \email{trife@@ksu.edu}
+#' @author Narinder Singh, \email{nss470@@ksu.edu}
 #' 
 #' @param hap.obj the hap object to convert
-#' @param delim the deliminator used in the file
-#' @param exp.format the format you wish to convert the hap object to
+#' @param format the format you wish to convert the hap object to
 #' @param parents columns for the two parents being used to convert to RQTL and AB format
 #' 
 #' @keywords 
@@ -16,26 +15,39 @@
 #' 
 #' @export
 
-hap.convert <- function(hap,delim,exp.format=c("MEGA4","FST","STRUCTURE","RQTL","AB","GAPIT"),parents=null){
+hap.convert <- function(hap,format=c("MEGA4","FST","STRUCTURE","RQTL","AB","GAPIT"),parents=NULL) {
   hap.obj = hap
+  
+  if(missing(format)) {
+    stop("No export format specified.")
+  }
 
-  MEGA4.F = function(...){
+  MEGA4.F = function(...) {
     
   }
   
-  FST.F = function(...){
+  FST.F = function(...) {
     
   }
   
-  RQTL.F = function(...){
+  RQTL.F = function(...) {
     
   }
   
-  AB.F = function(...){
+  AB.F = function(...) {
+    if(missing(parents) | length(parents) = 1) {
+      stop("Two parents must be specified for AB format.")
+    }
     
+    # Try to use parents as column numbers in hap matrix else find names
+    if(is.numeric(parents)) {
+      
+    } else {
+      
+    }
   }
   
-  GAPIT.F = function(...){
+  GAPIT.F = function(...) {
     
   }
   
@@ -59,5 +71,7 @@ hap.convert <- function(hap,delim,exp.format=c("MEGA4","FST","STRUCTURE","RQTL",
     output$MEGA4 = GAPIT.F()
   }
   
-  #TODO change output types
+  names(output) = format
+  cat("DONE","\n")
+  invisible(output)
 }
