@@ -6,7 +6,7 @@
 #' 
 #' @param hap a matrix or data frmae consisting consisting of rows (markers) and columns (individuals)
 #' @param result return the number of matched calls, percent identitiy, or both
-#' @param geno optional vector to include non-standard genotype calls
+#' @param calls optional vector to include non-standard genotype calls
 #' 
 #' @keywords alleles, hap
 #' 
@@ -14,7 +14,7 @@
 #' 
 #' @export
 
-allele.match <- function(hap,result=c("count","percent"),geno){
+allele.match <- function(hap,result=c("count","percent"),calls=NULL){
   if(!"count"%in%result && !"percent"%in%result) {
     stop("The result option is not set.")
   }
@@ -22,15 +22,15 @@ allele.match <- function(hap,result=c("count","percent"),geno){
   allele.match <- hap
   dim(allele.match)
   
-  #Check to ensure input matrix has correct format
+  # Check to ensure input matrix has correct format
   genotypes <- c(NA,"A","T","C","G","H","N")
   
-  if(!missing(geno)) {
-    genotypes <- c(genotypes, geno)
+  if(!missing(genotypes)) {
+    genotypes <- c(genotypes, calls)
   }
   
   if(!all(apply(allele.match,MARGIN=2,function(x) x%in%genotypes))) {
-    stop("Non genotypes detected in input matrix. Edit the geno parameter.")
+    stop("Non genotypes detected in input matrix. Edit the calls parameter.")
   }
   
   nS <- ncol(allele.match)
@@ -38,7 +38,6 @@ allele.match <- function(hap,result=c("count","percent"),geno){
   
   pb = txtProgressBar(min = 0, max = nrow(id), initial = 0) 
   
-  ## New
   for (i in 1:nrow(id)){
     id_pc <- rep(NA, length(i:nrow(id)))
     id_ct <- rep(NA, length(i:nrow(id)))
@@ -47,11 +46,11 @@ allele.match <- function(hap,result=c("count","percent"),geno){
       line2 = as.character(allele.match[,j])
       shared = line1!="N" & line2!="N" & line1!="H" & line2!="H"
       common = line1[shared] == line2[shared]
-      if(any(result == "count")) {
+      if(any(result == "percent")) {
         id_pc[j-i+1] <- sum(common, na.rm = T)/sum(shared, na.rm = T)
       }
       
-      if(any(result == "percent")) {
+      if(any(result == "count")) {
         id_ct[j-i+1] <- sum(shared, na.rm = T) 
       }
     }

@@ -5,7 +5,8 @@
 #' @author Trevor Rife, \email{trife@@ksu.edu}
 #' @author Jared Crain, \email{jcrain@@ksu.edu}
 #' 
-#' @param hap the geno object to be processed
+#' @param hap the hap object to be processed
+#' @param geno the geno object to be processed
 #' @param file the output file name
 #' 
 #' @keywords

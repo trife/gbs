@@ -29,7 +29,7 @@ hap.read <- function(file,delim="\t"){
   }
 
   #TODO check data
-
+  
 
   invisible(hap)
 }

@@ -5,7 +5,7 @@
 #' @author Chris Gaynor
 #' @author Trevor Rife, \email{trife@@ksu.edu}
 #' 
-#' @param hap.obj the hap object to impute
+#' @param geno the geno object to impute
 #' @param method the method to use for imputation
 #' @param parents columns for the two parents being used to convert to RQTL and AB format
 #' 
@@ -15,9 +15,10 @@
 #' 
 #' @export
 
-hap.impute <- function(hap,method=c("mean","EM","RF","median","KNN","SVD"),parents=null){
-  hap.obj = hap
+hap.impute <- function(geno,method=c("mean","EM","RF","median","KNN","SVD")){
+  hap.obj = geno
 
+  #TODO data integrity for all options (numeric, etc)
   if(any(methods=="mean")){
     data[[1]] = rrBLUP::A.mat(hap.obj, impute.method="mean", n.core=n.core, return.imputed=TRUE, ...)$imputed
   }

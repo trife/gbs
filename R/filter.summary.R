@@ -3,6 +3,7 @@
 #' Processes hap object, calculates summary statistics, and graphs relevant stats
 #' 
 #' @author Trevor Rife, \email{trife@@ksu.edu}
+#' @author Jesse Poland, \email{jpoland@@ksu.edu}
 #' 
 #' @param hap the hap object to be processed
 #' 
@@ -40,7 +41,7 @@ filter.summary <- function(hap,project="gbs",output=c("hap","geno")){
   }
   
   ## Rename some columns
-  ## TODO we should just recalculate all of these instead of assuming they exist
+  ## TODO recalculate all of these instead of assuming they exist
   colnames(hap)[colnames(hap)=="assembly"] = "snp_pos"
   colnames(hap)[colnames(hap)=="protLSID"] = "alleleA"
   colnames(hap)[colnames(hap)=="assayLSID"] = "alleleB"

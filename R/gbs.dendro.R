@@ -51,8 +51,6 @@ gbs.dendro <- function(hap) {
   entryNames$source = factor(entryNames$source)
   entryNames$year = factor(entryNames$year)
   
-  write.table(geno,file="R/rpn/dendrogram/modified_rpn_geno.txt", col.names=TRUE, row.names=TRUE, sep="\t", quote=FALSE)
-  
   # colors
   colors = rainbow(length(levels(entryNames$source))+1,s=1,v=.9)
   colors[5] = "grey36"
@@ -63,13 +61,6 @@ gbs.dendro <- function(hap) {
   par(cex=1)
   op = par(bg="white")
   color.plot.phylo(as.phylo(hc), type="fan",df=entryNames,trait="source",taxa.names="line_name",leg.title="Program of Origin",label.offset=1.2,leg.cex=2,col.names=colors)
-  par(cex=.2)
-  par(cex=3.5, mar=c(0, 0, 2.5, 0),op)
-  title(main="Hard Winter Wheat Regional Performance Nursery (1992-2012)")
-  par(cex=2.5, mar=c(0, 0, 7, 0))
-  title(main=expression("T.W. Rife"^1*", R.A. Graybosch"^"2,3"*", J.A. Poland"^"2,4"))
-  par(cex=1, mar=c(0, 0, 25, 0))
-  title(main="1. Interdepartmental Genetics - Kansas State University,  2. United States Department of Agriculture, \n3. Plant Breeding and Genetics - University of Nebraska-Lincoln,  4. Department of Agronomy - Kansas State University")
   dev.off()
   
   
