@@ -1,6 +1,6 @@
 #' Convert hap objects to other formats
 #' 
-#' Takes in hap files and converts them to the formats needed for other analysis programs 
+#' Takes in hap files and converts them to the formats needed for other analysis programs
 #' 
 #' @author Trevor Rife, \email{trife@@ksu.edu}
 #' @author Narinder Singh, \email{nss470@@ksu.edu}
@@ -31,6 +31,10 @@ hap.convert <- function(hap,format=c("MEGA4","FST","STRUCTURE","RQTL","AB","GAPI
   }
   
   RQTL.F = function(...) {
+    
+  }
+  
+  STRUCTURE.F = function(...) {
     
   }
   
@@ -125,7 +129,11 @@ hap.convert <- function(hap,format=c("MEGA4","FST","STRUCTURE","RQTL","AB","GAPI
   output = list()
   
   if(any(format=="MEGA4")){
-    output[[MEGA4]] = MEGA4.F()
+    output$MEGA4 = MEGA4.F()
+  }
+  
+  if(any(format=="STRUCTURE")){
+    output$STRUCTURE = STRUCTURE.F()
   }
   
   if(any(format=="FST")){
