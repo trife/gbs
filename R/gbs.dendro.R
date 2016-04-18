@@ -26,7 +26,6 @@ gbs.dendro <- function(hap) {
   require(BLR)
   require(multicore)
   require(parallel)
-  require(ape)
   
   # clean geno
   geno = read.delim(file="R/rpn/hap/rpn_geno.txt",sep="\t",header=TRUE,check.names=FALSE)
