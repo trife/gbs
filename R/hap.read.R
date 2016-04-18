@@ -25,11 +25,21 @@ hap.read <- function(file,delim="\t"){
   }
 
   if(!file.info(file)$isdir) {
-    hap = fread(file=file, sep=delim,check.names=FALSE,header=TRUE, data.table = F)
+    hap = data.table::fread(input=file, sep=delim,check.names=FALSE,header=TRUE, data.table = F,strip.white=T)
+    hap = cbind(dif=1,hap)
   }
 
-  #TODO check data
+  if(!"rs"%in%colnames(hap)) {
+    stop("Tag column missing (rs)")
+  }
   
-
+  if(!"alleles"%in%colnames(hap)) {
+    stop("Alleles column (alleles) missing")
+  }
+  
+  if(!"pos"%in%colnames(hap)) {
+    stop("Marker position column (pos) missing")
+  }
+  
   invisible(hap)
 }
