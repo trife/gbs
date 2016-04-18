@@ -15,7 +15,7 @@
 #' 
 #' @export
 
-hap.convert <- function(hap,format=c("MEGA4","FST","STRUCTURE","RQTL","AB","GAPIT"),parents=NULL) {
+hap.convert <- function(hap,format=c("MEGA4","FST","STRUCTURE","RQTL","AB","GAPIT","JOINMAP"),parents=NULL) {
   hap.obj = hap
   
   if(missing(format)) {
@@ -126,6 +126,11 @@ hap.convert <- function(hap,format=c("MEGA4","FST","STRUCTURE","RQTL","AB","GAPI
     
   }
   
+  JOINMAP.F = function(...) {
+    
+  }
+  
+  
   output = list()
   
   if(any(format=="MEGA4")){
@@ -150,6 +155,10 @@ hap.convert <- function(hap,format=c("MEGA4","FST","STRUCTURE","RQTL","AB","GAPI
   
   if(any(format=="GAPIT")){
     output$GAPIT = GAPIT.F()
+  }
+  
+  if(any(format=="JOINMAP")){
+    output$JOINMAP = JOINMAP.F()
   }
   
   names(output) = format

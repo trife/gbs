@@ -6,4 +6,5 @@ gbs.Rproj
 full_test.R
 createRPackage.R
 todo.txt
-/data/dh_hap.txt
+/data/dh/
+/data/ion2/

@@ -21,4 +21,6 @@ gbs.diversity <- function(geno){
   ae = 1/(1-hap$percentHET)
   ae2 = 1/(hap$MAF^2)
   nei = (1-hap$MAF^2-(1-hap$MAF)^2)
+  
+  FST
 }

@@ -3,6 +3,7 @@
 #' This function compares alleles across lines in a hap object
 #' 
 #' @author Narinder Singh, \email{nss470@@ksu.edu}
+#' @author Trevor Rife, \email{trife@@ksu.edu}
 #' 
 #' @param hap a matrix or data frmae consisting consisting of rows (markers) and columns (individuals)
 #' @param result return the number of matched calls, percent identitiy, or both
@@ -16,7 +17,7 @@
 
 allele.match <- function(hap,result=c("count","percent"),calls=NULL){
   if(!"count"%in%result && !"percent"%in%result) {
-    stop("The result option is not set.")
+    stop("Result type must be specified.")
   }
   
   allele.match <- hap

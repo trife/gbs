@@ -18,7 +18,12 @@
 
 gbs.graph <- function(hap,geno,file) {
   ## TODO start pdf and write all to pdf
-  pdf(file)
+  
+  if(!missing(file)) {
+    pdf(file)
+  } else {
+    #output to display instead
+  }
   
   ## Check for blank wells, make histogram if they exist
   if(any(grepl("BLANK",colnames(hap)))) {
