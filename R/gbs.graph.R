@@ -16,7 +16,6 @@
 #' 
 #' @export
 
-
 gbs.graph <- function(hap,geno,file,data.col=12) {
   
   ## TODO scale page sizes by the number of lines or something
