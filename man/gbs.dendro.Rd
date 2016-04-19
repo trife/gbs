@@ -11,28 +11,28 @@ gbs.dendro(geno, df, taxa, tips, leafs, tipColors, leafColors, ...)
 
 \item{df}{data frame containing items to be plotted}
 
-\item{taxa}{string represnting the name of the column in the dataframe that contains the names of the taxa}
+\item{taxa}{string representing the column in the dataframe that contains the names of the taxa in the geno object}
 
-\item{tips}{string representing the name of the column in the dataframe that contains the names for the tips}
+\item{tips}{string representing the column in the dataframe that contains the trait of interest for the tips}
 
-\item{leafs}{string representing the name of the column in the dataframe that contains the names for the leafs}
+\item{leafs}{string representing the column in the dataframe that contains the trait of interest for the leafs}
 
-\item{...}{additional graphical arguments from plot.phylo}
+\item{...}{additional graphical arguments to pass to the plot.phylo function}
 
-\item{tipColor}{a vector of colors to be used for the tips or a column in the dataframe that should be used to divide colors}
+\item{tipColor}{a vector of colors to be used for the tips}
 
-\item{leafColor}{a vector of colors to be used for the leafs or a column in the dataframe that should be used to divide colors}
+\item{leafColor}{a vector of colors to be used for the leafs}
 }
 \description{
-Create different dendrograms with GBS data
+Create different dendrograms with GBS data borrows some code from picante package
 }
 \examples{
 
 }
 \author{
-Narinder Singh, \email{nss470@ksu.edu}
-
 Trevor Rife, \email{trife@ksu.edu}
+
+Narinder Singh, \email{nss470@ksu.edu}
 }
 \keyword{}
 

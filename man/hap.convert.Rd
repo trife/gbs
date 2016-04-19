@@ -4,10 +4,9 @@
 \alias{hap.convert}
 \title{Convert hap objects to other formats}
 \usage{
-hap.convert(hap, format = c("MEGA", "FSTAT", "STRUCTURE", "FSTRUCTURE",
-  "RQTL", "AB", "GAPIT", "JOINMAP", "PLINK", "CERVUS"), parents = NULL,
-  jm.pop = c("BC1", "F2", "RIx", "DH", "DH1", "DH2", "HAP", "HAP1", "CP",
-  "BCpxFy", "IMxFy"))
+hap.convert(hap, format = c("MEGA", "STRUCTURE", "FSTRUCTURE", "RQTL", "AB",
+  "GAPIT", "JOINMAP"), parents = NULL, jm.pop = c("BC1", "F2", "RIx", "DH",
+  "DH1", "DH2", "HAP", "HAP1", "CP", "BCpxFy", "IMxFy"))
 }
 \arguments{
 \item{format}{the format you wish to convert the hap object to}

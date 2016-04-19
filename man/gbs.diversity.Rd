@@ -4,12 +4,10 @@
 \alias{gbs.diversity}
 \title{GBS Diversity}
 \usage{
-gbs.diversity(geno)
+gbs.diversity(hap)
 }
 \arguments{
 \item{hap}{the hap object to manipulate}
-
-\item{delim}{the delimiter for the hap object (if file)}
 }
 \description{
 Calculate different measures of diveristy in a hap object
@@ -18,6 +16,8 @@ Calculate different measures of diveristy in a hap object
 
 }
 \author{
+Narinder Singh, \email{nss470@ksu.edu}
+
 Trevor Rife, \email{trife@ksu.edu}
 }
 \keyword{}

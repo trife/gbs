@@ -4,7 +4,8 @@
 \alias{hap.impute}
 \title{Impute markers in gbs}
 \usage{
-hap.impute(geno, method = c("mean", "EM", "RF", "median", "KNN", "SVD"))
+hap.impute(geno, method = c("mean", "EM", "RF", "HMM", "median", "KNN",
+  "SVD"))
 }
 \arguments{
 \item{geno}{the geno object to impute}
