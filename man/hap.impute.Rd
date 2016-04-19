@@ -4,17 +4,14 @@
 \alias{hap.impute}
 \title{Impute markers in gbs}
 \usage{
-hap.impute(hap, delim, exp.format = c("MEGA4", "FST", "STRUCTURE", "RQTL",
-  "AB", "GAPIT"), parents = null)
+hap.impute(geno, method = c("mean", "EM", "RF", "median", "KNN", "SVD"))
 }
 \arguments{
-\item{delim}{the deliminator used in the file}
+\item{geno}{the geno object to impute}
 
-\item{exp.format}{the format you wish to convert the hap object to}
+\item{method}{the method to use for imputation}
 
 \item{parents}{columns for the two parents being used to convert to RQTL and AB format}
-
-\item{hap.obj}{the hap object to convert}
 }
 \description{
 Takes in hap object and impute markers
@@ -23,7 +20,7 @@ Takes in hap object and impute markers
 
 }
 \author{
-Narinder Singh, \email{nss470@ksu.edu}
+Chris Gaynor
 
 Trevor Rife, \email{trife@ksu.edu}
 }

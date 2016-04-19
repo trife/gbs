@@ -4,7 +4,8 @@
 \alias{filter.summary}
 \title{Filter Summary}
 \usage{
-filter.summary(hap)
+filter.summary(hap, project = "gbs", data.col = 4, output = c("hap",
+  "geno"))
 }
 \arguments{
 \item{hap}{the hap object to be processed}
@@ -17,6 +18,8 @@ Processes hap object, calculates summary statistics, and graphs relevant stats
 }
 \author{
 Trevor Rife, \email{trife@ksu.edu}
+
+Jesse Poland, \email{jpoland@ksu.edu}
 }
 \keyword{}
 

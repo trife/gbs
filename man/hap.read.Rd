@@ -4,7 +4,7 @@
 \alias{hap.read}
 \title{Read hap file}
 \usage{
-hap.read(file, delim = "\\t", data)
+hap.read(file, delim = "\\t")
 }
 \arguments{
 \item{file}{the hap file}
@@ -22,5 +22,5 @@ Read in a file to create a hap object
 \author{
 Trevor Rife, \email{trife@ksu.edu}
 }
-\keyword{hap}
+\keyword{}
 

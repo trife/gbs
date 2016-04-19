@@ -4,10 +4,16 @@
 \alias{gbs.graph}
 \title{GBS Graphs}
 \usage{
-gbs.graph(hap)
+gbs.graph(hap, geno, file, data.col = 12)
 }
 \arguments{
 \item{hap}{the hap object to be processed}
+
+\item{geno}{the geno object to be processed}
+
+\item{file}{the output file name}
+
+\item{data.col}{the column where data starts}
 }
 \description{
 Calculates and graphs relevant stats for a hap object
@@ -17,6 +23,8 @@ Calculates and graphs relevant stats for a hap object
 }
 \author{
 Trevor Rife, \email{trife@ksu.edu}
+
+Jared Crain, \email{jcrain@ksu.edu}
 }
 \keyword{}
 

@@ -4,7 +4,7 @@
 \alias{hap.join}
 \title{Hap Join}
 \usage{
-hap.join(hap.dir)
+hap.join(hap.dir, delim = "\\t")
 }
 \arguments{
 \item{hap.dir}{directory where hap files are located}

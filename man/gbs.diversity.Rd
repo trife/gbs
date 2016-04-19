@@ -4,7 +4,7 @@
 \alias{gbs.diversity}
 \title{GBS Diversity}
 \usage{
-gbs.diversity(hap, delim = "\\t")
+gbs.diversity(geno)
 }
 \arguments{
 \item{hap}{the hap object to manipulate}

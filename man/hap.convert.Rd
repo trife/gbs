@@ -4,13 +4,13 @@
 \alias{hap.convert}
 \title{Convert hap objects to other formats}
 \usage{
-hap.convert(hap, delim, exp.format = c("MEGA4", "FST", "STRUCTURE", "RQTL",
-  "AB", "GAPIT"), parents = null)
+hap.convert(hap, format = c("MEGA", "FSTAT", "STRUCTURE", "FSTRUCTURE",
+  "RQTL", "AB", "GAPIT", "JOINMAP", "PLINK", "CERVUS"), parents = NULL,
+  jm.pop = c("BC1", "F2", "RIx", "DH", "DH1", "DH2", "HAP", "HAP1", "CP",
+  "BCpxFy", "IMxFy"))
 }
 \arguments{
-\item{delim}{the deliminator used in the file}
-
-\item{exp.format}{the format you wish to convert the hap object to}
+\item{format}{the format you wish to convert the hap object to}
 
 \item{parents}{columns for the two parents being used to convert to RQTL and AB format}
 
@@ -23,9 +23,11 @@ Takes in hap files and converts them to the formats needed for other analysis pr
 
 }
 \author{
+Trevor Rife, \email{trife@ksu.edu}
+
 Narinder Singh, \email{nss470@ksu.edu}
 
-Trevor Rife, \email{trife@ksu.edu}
+Traci Kantarski, \email{tkantarski@ksu.edu}
 }
 \keyword{}
 

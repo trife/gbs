@@ -4,10 +4,24 @@
 \alias{gbs.dendro}
 \title{GBS Dendrograms}
 \usage{
-gbs.dendro(hap)
+gbs.dendro(geno, df, taxa, tips, leafs, tipColors, leafColors, ...)
 }
 \arguments{
-\item{hap}{the hap object to manipulate}
+\item{geno}{the geno object to manipulate}
+
+\item{df}{data frame containing items to be plotted}
+
+\item{taxa}{string represnting the name of the column in the dataframe that contains the names of the taxa}
+
+\item{tips}{string representing the name of the column in the dataframe that contains the names for the tips}
+
+\item{leafs}{string representing the name of the column in the dataframe that contains the names for the leafs}
+
+\item{...}{additional graphical arguments from plot.phylo}
+
+\item{tipColor}{a vector of colors to be used for the tips or a column in the dataframe that should be used to divide colors}
+
+\item{leafColor}{a vector of colors to be used for the leafs or a column in the dataframe that should be used to divide colors}
 }
 \description{
 Create different dendrograms with GBS data
@@ -16,9 +30,9 @@ Create different dendrograms with GBS data
 
 }
 \author{
-Trevor Rife, \email{trife@ksu.edu}
-
 Narinder Singh, \email{nss470@ksu.edu}
+
+Trevor Rife, \email{trife@ksu.edu}
 }
 \keyword{}
 
