@@ -4,6 +4,7 @@
 #' 
 #' @author Trevor Rife, \email{trife@@ksu.edu}
 #' @author Narinder Singh, \email{nss470@@ksu.edu}
+#' @author Traci Kantarski, \email{tkantarski@@ksu.edu}
 #' 
 #' @param hap.obj the hap object to convert
 #' @param format the format you wish to convert the hap object to
@@ -15,7 +16,7 @@
 #' 
 #' @export
 
-hap.convert <- function(hap,format=c("MEGA4","FST","STRUCTURE","RQTL","AB","GAPIT","JOINMAP"),parents=NULL) {
+hap.convert <- function(hap,format=c("MEGA4","FST","STRUCTURE","RQTL","AB","GAPIT","JOINMAP"),parents=NULL,jm.pop = c("BC1","F2","RIx","DH","DH1","DH2","HAP","HAP1","CP","BCpxFy","IMxFy")) {
   hap.obj = hap
   
   if(missing(format)) {
@@ -127,9 +128,23 @@ hap.convert <- function(hap,format=c("MEGA4","FST","STRUCTURE","RQTL","AB","GAPI
   }
   
   JOINMAP.F = function(...) {
+    if(jm.pop%in% c("BC1","F2","RIx","DH","DH1","DH2","HAP","HAP1","BCpxFy","IMxFy","CM")) {
+      stop("This population type is not currently implemented.")
+    }
     
+    if(jm.pop%in% c("BC1","F2","RIx","DH1","DH2","HAP1","BCpxFy","IMxFy")) {
+      geno.codes = c("a","b","h","c","d","-",".","u")
+    }
+    
+    if(jm.pop%in% c("DH","HAP")) {
+      geno.codes = c("a","b","-",".","u")
+    }
+    
+    if(any(jm.pop)=="CP") {
+      pop.types = c("<abxcd>","<efxeg>","<hkxhk>","<lmxll>","<nnxnp>")
+      geno.codes = c("ab","cd","ef","eg","hk","lm","ll","nn","np")
+    }
   }
-  
   
   output = list()
   

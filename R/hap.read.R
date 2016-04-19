@@ -8,7 +8,7 @@
 #' @param delim the delimter used in the file
 #' @param data column number where genotypes begin
 #'
-#' @keywords hap
+#' @keywords
 #'
 #' @examples
 #'
@@ -40,6 +40,8 @@ hap.read <- function(file,delim="\t"){
   if(!"pos"%in%colnames(hap)) {
     stop("Marker position column (pos) missing")
   }
+  
+  # TODO add in break here based on structure
   
   invisible(hap)
 }
