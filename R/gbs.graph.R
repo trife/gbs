@@ -18,7 +18,8 @@
 
 gbs.graph <- function(hap,geno,file,data.col=12) {
   
-  ## TODO scale page sizes by the number of lines or something
+  # TODO add data.col functionality
+  # TODO scale page sizes by the number of lines or something
   if(!missing(file)) {
     pdf(file)
   }

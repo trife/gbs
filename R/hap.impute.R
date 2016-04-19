@@ -15,7 +15,7 @@
 #' 
 #' @export
 
-hap.impute <- function(geno,method=c("mean","EM","RF","median","KNN","SVD")){
+hap.impute <- function(geno,method=c("mean","EM","RF","HMM","median","KNN","SVD")){
   hap.obj = geno
 
   #TODO data integrity for all options (numeric, etc)
@@ -45,6 +45,10 @@ hap.impute <- function(geno,method=c("mean","EM","RF","median","KNN","SVD")){
   
   if(any(methods=="SVD")){
     #TODO
+  }
+  
+  if(any(methods=="HMM")){
+    #TODO use mpMap maybe
   }
   
   invisible(data)

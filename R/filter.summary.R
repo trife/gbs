@@ -14,6 +14,8 @@
 #' @export
 
 filter.summary <- function(hap,project="gbs",data.col=4,output=c("hap","geno")){
+  #TODO assume we have chromosome
+  #TODO get rid of the other columns that default with the file if they exist
   
   # Get rid of duplicates
   rs_pos = hap[,c(2,4)]

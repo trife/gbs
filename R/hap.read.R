@@ -42,6 +42,15 @@ hap.read <- function(file,delim="\t"){
   }
   
   # TODO add in break here based on structure
+  genotypes <- c(NA,"A","T","C","G","H","N")
+  
+  if(!missing(genotypes)) {
+    genotypes <- c(genotypes, calls)
+  }
+  
+  if(!all(apply(allele.match,MARGIN=2,function(x) x%in%genotypes))) {
+    stop("Non genotypes detected in input matrix. Edit the calls parameter.")
+  }
   
   invisible(hap)
 }

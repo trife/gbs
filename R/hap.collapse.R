@@ -18,9 +18,9 @@
 hap.collapse <- function(hap,names,match,method){
   
   #TODO make call.fnc more robust
-  #TODO add option for matching percent, call allele.match to calculate
   #TODO attempts to automatically identify names to merge will break if names contain periods
   #TODO add different methods for removing lines (strict, step, etc.)
+  #TODO add option to just print out those that don't match
   
   call.fnc = function(x) {
     count = sum(x)

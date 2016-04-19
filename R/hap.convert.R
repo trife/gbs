@@ -16,44 +16,39 @@
 #' 
 #' @export
 
-hap.convert <- function(hap,format=c("MEGA4","FST","STRUCTURE","RQTL","AB","GAPIT","JOINMAP"),parents=NULL,jm.pop = c("BC1","F2","RIx","DH","DH1","DH2","HAP","HAP1","CP","BCpxFy","IMxFy")) {
-  hap.obj = hap
+hap.convert <- function(hap,format=c("MEGA","STRUCTURE","FSTRUCTURE","RQTL","AB","GAPIT","JOINMAP"),parents=NULL,jm.pop = c("BC1","F2","RIx","DH","DH1","DH2","HAP","HAP1","CP","BCpxFy","IMxFy")) {
+  
+  # TODO add: PLINK (http://pngu.mgh.harvard.edu/~purcell/plink/data.shtml#bed), CERVUS, DNASP
   
   if(missing(format)) {
     stop("No export format specified.")
   }
 
-  MEGA4.F = function(...) {
-    
-  }
-  
-  FST.F = function(...) {
-    
+  MEGA.F = function(...) {
+    # TODO http://www.megasoftware.net/mega4/mega4.pdf
   }
   
   RQTL.F = function(...) {
+    # TODO http://www.inside-r.org/packages/cran/qtl/docs/read.cross
     
+    # line id in first column, marker names across header, chromosome on second line, A B H genotypes
   }
   
   STRUCTURE.F = function(...) {
+    # TODO http://pritchardlab.stanford.edu/structure_software/release_versions/v2.3.4/structure_doc.pdf
+  }
+  
+  FSTRUCTURE.F = function(...) {
+    # TODO https://github.com/rajanil/fastStructure
     
+    # rows in the data file correspond to samples, with two rows per sample and columns correspond to SNPs
+    # The first 6 columns of the file will be ignored; typically include IDs, metadata, etc. 
+    # only handles bi-allelic loci. The two alleles at each locus can be encoded as desired
+    # missing data should be encoded as -9.
   }
   
   AB.F = function(...) {
-    if(length(parents) != 2) {
-      stop("Exactly two parents must be specified for AB format.")
-    }
-    
-    # Check for multiple occurrences of parents, and that they both exist
-    if(is.character(parents)) {
-      if(length(grep(paste(parents,collapse="|"), colnames(hap), value=TRUE))<2) {
-        stop("Unable to find both parent data columns.")
-      }
-      
-      if(length(grep(paste(parents,collapse="|"), colnames(hap), value=TRUE))>2) {
-        stop("Found too many parent data columns. Use hap.collapse to merge.")
-      }
-    }
+    check.parents(parents,hap)
 
     # If user specifies column number instead of names
     if(is.numeric(parents)) {
@@ -112,52 +107,129 @@ hap.convert <- function(hap,format=c("MEGA4","FST","STRUCTURE","RQTL","AB","GAPI
       }
     }
     
-    ## Convert to A/B (converted to Y/Z since A is also a nucleotide)
+    ## Convert to A/B
     hap.calls = hap.ab
     hap.calls <- data.frame(lapply(hap.calls, as.character), stringsAsFactors=FALSE, check.names=FALSE)
-    hap.calls[hap.calls==hap.ab[,p1col]] = "Y"
-    hap.calls[hap.calls==hap.ab[,p2col]] = "Z"
-    hap.calls[hap.calls=="Y"] = "A"
-    hap.calls[hap.calls=="Z"] = "B"
+    hap.calls[hap.calls==hap.ab[,p2col]] = "B"
+    hap.calls[hap.calls==hap.ab[,p1col]] = "A"
     
     hap.calls
   }
   
   GAPIT.F = function(...) {
-    
+    # TODO http://www.zzlab.net/GAPIT/gapit_help_document.pdf
+    # Required columns: 11 including rs (snp name), chrom, pos
+    # Genotypes in double bit or standard iupac codes
   }
   
   JOINMAP.F = function(...) {
+    # TODO https://www.kyazma.nl/docs/JM4manual.pdf
+    
+    if(missing(jm.pop)) {
+      stop("Joinmap population type must be specified for Joinmap export.")
+    }
+    
+    check.parents(parents,hap)
+    
+    header = c("locus","segregation","phase","classification")
+
+    # If user specifies column number instead of names
+    if(is.numeric(parents)) {
+      p1col = parents[1]
+      p2col = parents[2]
+      
+      print(paste("Using ",colnames(hap)[parents[1]]," and ",colnames(hap)[parents[2]]," as parents.",sep=""))
+    } else {
+      p1col = which(grepl(parents[1],colnames(hap)))
+      p2col = which(grepl(parents[2],colnames(hap)))
+    }
+    
     if(jm.pop%in% c("BC1","F2","RIx","DH","DH1","DH2","HAP","HAP1","BCpxFy","IMxFy","CM")) {
       stop("This population type is not currently implemented.")
     }
     
     if(jm.pop%in% c("BC1","F2","RIx","DH1","DH2","HAP1","BCpxFy","IMxFy")) {
       geno.codes = c("a","b","h","c","d","-",".","u")
+      
     }
     
     if(jm.pop%in% c("DH","HAP")) {
       geno.codes = c("a","b","-",".","u")
+      
     }
     
     if(any(jm.pop)=="CP") {
       pop.types = c("<abxcd>","<efxeg>","<hkxhk>","<lmxll>","<nnxnp>")
-      geno.codes = c("ab","cd","ef","eg","hk","lm","ll","nn","np")
+      geno.codes = c("ab","cd","ef","eg","hk","lm","ll","nn","np","--")
+      
+      # Assumes UNEAK code structure
+
+      # Custom Genotype Calling & Data Filtering
+      
+      call.hets <- function(x)  {
+        Counts <- as.numeric(strsplit(as.character(x),"\\|")[[1]])
+        Total <- sum(Counts)
+        Minor <- min(Counts)
+        Major <- which(Counts==max(Counts))[1]
+        R1 <- Minor/Total
+        {    
+          
+          # If there are no reads, call it NA
+          
+          if (Total == 0)	{
+            return(NA)
+          }
+          
+          # This is where genotype calls are customized.
+          # If one allele has no counts, the second allele must have 5 counts or more to be called homozygous for that allele.
+          # If there is less than 5 counts, NA is returned 
+          
+          else if (Minor == 0 && Total <= 4) {
+            return(NA)
+          }
+          
+          else if (Minor == 0 && Total > 4)	{
+            return(c(0,2)[Major])
+          }
+          
+          # If the minor allele frequency for a given genotype is less than 10%,  minor allele is considered a likely error
+          # and the genotype is considered homozygous for the major allele
+          
+          else if (Minor > 0 &&  R1 < 0.10)	{
+            return(c(0,2)[Major])
+          }
+          
+          else if (Minor > 0 &&  R1 >= 0.10)	{
+            return(1)
+          }
+          else return(1)
+        }
+      }
+      
+      count.hets <- function(Matrix)	{
+        Mat <- as.matrix(Matrix)
+        Vec <- as.vector(Mat)
+        
+        out.Vec <- sapply(Vec, call.hets)
+        
+        out.Mat <- matrix(out.Vec, nrow=nrow(Mat))
+        return(out.Mat)
+      }
     }
   }
   
   output = list()
   
-  if(any(format=="MEGA4")){
-    output$MEGA4 = MEGA4.F()
+  if(any(format=="MEGA")){
+    output$MEGA = MEGA.F()
   }
   
   if(any(format=="STRUCTURE")){
     output$STRUCTURE = STRUCTURE.F()
   }
   
-  if(any(format=="FST")){
-    output$FST = FST.F()
+  if(any(format=="FSTRUCTURE")){
+    output$FSTRUCTURE = FSTRUCTURE.F()
   }
   
   if(any(format=="RQTL")){
@@ -179,4 +251,21 @@ hap.convert <- function(hap,format=c("MEGA4","FST","STRUCTURE","RQTL","AB","GAPI
   names(output) = format
   cat("DONE","\n")
   invisible(output)
+}
+
+check.parents <- function(x,y) {
+  if(length(x) != 2) {
+    stop("Exactly two parents must be specified.")
+  }
+  
+  # Check for multiple occurrences of parents, and that they both exist
+  if(is.character(x)) {
+    if(length(grep(paste(x,collapse="|"), colnames(y), value=TRUE))<2) {
+      stop("Unable to find both parent data columns.")
+    }
+    
+    if(length(grep(paste(x,collapse="|"), colnames(y), value=TRUE))>2) {
+      stop("Found too many parent data columns. Use hap.collapse to merge.")
+    }
+  }
 }
