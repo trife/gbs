@@ -316,5 +316,36 @@ write.table(hapmap3, file="hapmap3.hapmap3.phased", row.names=F, quote=F, sep=" 
 write.csv(hapmap3, file="hapmap3.hapmap3.phased.csv", row.names=T, quote=F)
 
 #########
-## END ##
-#########
+# STRUCTURE
+
+# formating input file for STRUCTURE program
+
+strfile = read.table(file="hapFile.txt", header=TRUE,check.names=FALSE)
+dim(strfile)
+
+# remove SNPs where 2 or more SNPs in same tag / keeps the first SNP in that tag
+strfile = strfile[!duplicated(strfile$rs),]
+dim(strfile)
+
+strfile = as.matrix(strfile[as.numeric(paste(strfile$present))>0.8,10:ncol(strfile)])
+dim(strfile)
+strfile[1:5,1:5]
+
+# transpose the strfile for STRUCTURE input
+strfile <- t(strfile)
+strfile[1:5,1:5]
+
+# replacing nucleotides with numeric values; A=1, C=2, G=3, T=4, H=N=-9
+strfile[strfile=="A"]=1
+strfile[strfile=="C"]=2
+strfile[strfile=="G"]=3
+strfile[strfile=="T"]=4
+strfile[strfile=="H"]=-9
+strfile[strfile=="N"]=-9
+
+strfile <- as.data.frame(strfile)
+strfile[1:5,1:5]
+
+# writing out the strfile for STRUCTURE program in .txt format
+write.table(strfile, file="structure_input.txt", quote=F, row.names=T, col.names=F, sep="\t")
+#############
