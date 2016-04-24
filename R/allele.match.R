@@ -15,7 +15,7 @@
 #'
 #' @export
 
-allele.match <- function(hap,result=c("count","percent"),calls=NULL){
+allele.match <- function(hap,result=c("count","percent"),calls=NULL,histgraph=F){
   if(!"count"%in%result && !"percent"%in%result) {
     stop("Result type must be specified.")
   }
@@ -69,4 +69,11 @@ allele.match <- function(hap,result=c("count","percent"),calls=NULL){
   colnames(id)=colnames(allele.match)
 
   id
+
+  if(histgraph){
+     pdf(file = "identityHist.pdf", width = 11, height = 8.5)
+     hist(id[upper.tri(id)]*100, xlab = paste('%', 'identity'), main = 'Distribution of % identity')
+     hist(id[lower.tri(id)], xlab = '# of comparisons', main = 'Distribution of # comparisons')
+     dev.off()
+  }
 }
