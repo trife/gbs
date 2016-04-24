@@ -1,6 +1,6 @@
 .Rproj.user
 .Rhistory
-.RData
+*.RData
 gbs.Rproj
 .Rhistory
 full_test.R
@@ -9,3 +9,4 @@ todo.txt
 /data/dh/
 /data/ion2/
 /data/blank/
+try.R
