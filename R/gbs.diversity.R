@@ -40,17 +40,16 @@ gbs.diversity <- function(hap, mafThresh=0){
   pie(c(polyMarkers, totalMarkers-polyMarkers), labels = c('Polymorphic markers','Monomorphic markers'))
   dev.off()
 
-  # (1 - p^2 - q^2 )/ # loci
-  # Do na values need to be removed before calculating mean to get correct length? A vs B
-
-  # A
-  nei = mean(1-hap$maf^2-(1-hap$maf)^2,na.rm=T)
-
-  # B
-  nei = (1-hap$maf^2-(1-hap$maf)^2)
-  nei = mean(nei[!is.na(nei)])
-
+  # Nei's diversity index
+  nei = mean(1-(tHap$maf^2)-(1-tHap$maf)^2, na.rm = T)
+  cat("Nei's diversity index:", nei)
 
 
   # FST, possibly use ‘hierfstat’ package
+
+
+  # (1 - p^2 - q^2 )/ # loci
+  # Do na values need to be removed before calculating mean to get correct length? A vs B
+
+
 }
