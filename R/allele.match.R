@@ -21,7 +21,7 @@ allele.match <- function(hap,result=c("count","percent"),calls=NULL){
   }
 
   allele.match <- hap
-  message("Supplied dataset has ", nrow(allele.match), " SNPs and ", ncol(allele.match), " individuals.")
+  uniqCalls <- unique(c(hap))
 
   # Check to ensure input matrix has correct format
   genotypes <- c(NA,"A","C","G","T","H","N","a","c","g","t","h","n")
@@ -30,14 +30,18 @@ allele.match <- function(hap,result=c("count","percent"),calls=NULL){
     genotypes <- c(genotypes, calls)
   }
 
+  offCalls <- paste(shQuote(uniqCalls[!uniqCalls%in%genotypes]), collapse=", ")
+
   if(!all(apply(allele.match,MARGIN=2,function(x) x%in%genotypes))) {
-    stop("Non genotypes detected in input matrix. Edit the calls parameter.")
+    stop("Following non-genotypes calls detected in the input matrix: ", offCalls, ". Edit the calls parameter to allow these.")
   }
+
+  message("Supplied dataset has ", nrow(allele.match), " SNPs and ", ncol(allele.match), " individuals.")
 
   nS <- ncol(allele.match)
   id <- matrix(NA, nrow=nS, ncol=nS)
 
-  pb = txtProgressBar(min = 0, max = nrow(id), initial = 0)
+  pb = txtProgressBar(min = 0, max = nrow(id), initial = 0, style = 3)
 
   for (i in 1:nrow(id)){
     id_pc <- rep(NA, length(i:nrow(id)))
