@@ -36,7 +36,10 @@ allele.match <- function(hap,result=c("count","percent"),calls=NULL,histgraph=F)
     stop("Following non-genotypes calls detected in the input matrix: ", offCalls, ". Edit the calls parameter to allow these.")
   }
 
+  cat('\n')
   message("Supplied dataset has ", nrow(allele.match), " SNPs and ", ncol(allele.match), " individuals.")
+  message('Computing percent identity...')
+  cat('\n')
 
   nS <- ncol(allele.match)
   id <- matrix(NA, nrow=nS, ncol=nS)
@@ -68,12 +71,20 @@ allele.match <- function(hap,result=c("count","percent"),calls=NULL,histgraph=F)
   rownames(id)=colnames(allele.match)
   colnames(id)=colnames(allele.match)
 
-  id
-
-  if(histgraph){
+  if(histgraph) {
      pdf(file = "identityHist.pdf", width = 11, height = 8.5)
      hist(id[upper.tri(id)]*100, xlab = paste('%', 'identity'), main = 'Distribution of % identity')
      hist(id[lower.tri(id)], xlab = '# of comparisons', main = 'Distribution of # comparisons')
      dev.off()
+     cat('\n')
+     message('Histograms are saved as "identityHist.pdf" in your working directory.')
+     cat('\n')
   }
+
+  save(id, file = 'idMatrix.RData')
+
+  message('DONE computing successfully. Computed id matrix is saved as "idMatrix.RData" in your working directory for future usage and can be read in using the following command:')
+  cat('\n')
+  cat("\tload('idMatrix.RData')")
+  return(id)
 }
