@@ -26,7 +26,10 @@ hap.read <- function(hap.obj, delim="\t", data, genotypes=c(NA,"A","T","C","G","
   
   if(!file.info(hap.obj)$isdir) {
     hap = data.table::fread(input=hap.obj, sep=delim,check.names=FALSE,header=TRUE, data.table = F,strip.white=T)
-    hap = cbind(dif=1,hap)
+    
+    if(!"dif"%in%colnames(hap)) {
+      hap = cbind(dif=1,hap)  
+    }
   }
 
   if(!"rs"%in%colnames(hap)) {
