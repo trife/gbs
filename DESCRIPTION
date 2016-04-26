@@ -6,7 +6,7 @@ Description: This package is used for processing and analyzing GBS data.
 Depends:
     R (>= 3.0.3)
 Imports:
-   data.table,stats,ape,picante,rrBLUP,lattice
+   data.table,stats,ape,picante,rrBLUP,lattice,parallel,doParallel,randomForest,missForest,DMwR
 License: GPL2
 LazyData: false
 RoxygenNote: 5.0.1
