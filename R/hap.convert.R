@@ -4,11 +4,13 @@
 #'
 #' @author Trevor Rife, \email{trife@@ksu.edu}
 #' @author Narinder Singh, \email{nss470@@ksu.edu}
-#' @author Traci Kantarski, \email{tkantarski@@ksu.edu}
 #'
-#' @param hap.obj the hap object to convert
+#' @param hap the hap object to convert
 #' @param format the format you wish to convert the hap object to
+#' @param write.file should the converted file be written
+#' @param filename name to use for the output file
 #' @param parents columns for the two parents being used to convert to RQTL and AB format
+#' @param jm.pop joinmap population type
 #'
 #' @keywords
 #'
@@ -16,9 +18,11 @@
 #'
 #' @export
 
-hap.convert <- function(hap,format=c("MEGA","STRUCTURE","FSTRUCTURE","RQTL","AB","GAPIT","JOINMAP"),parents=NULL,jm.pop = c("BC1","F2","RIx","DH","DH1","DH2","HAP","HAP1","CP","BCpxFy","IMxFy")) {
+hap.convert <- function(hap, format=c("MEGA","STRUCTURE","FSTRUCTURE","RQTL","AB","GAPIT","JOINMAP","DNASP","PHYLIP"), write.file=FALSE, filename, parents=NULL, jm.pop = c("BC1","F2","RIx","DH","DH1","DH2","HAP","HAP1","CP","BCpxFy","IMxFy")) {
 
-  # TODO add: PLINK (http://pngu.mgh.harvard.edu/~purcell/plink/data.shtml#bed), CERVUS, DNASP
+  # TODO add: PLINK (http://pngu.mgh.harvard.edu/~purcell/plink/data.shtml#bed)
+  # TODO add: CERVUS: three files (list possible parents, list of all progeny, genotype file)
+  # TODO add generic output function
 
   if(missing(format)) {
     stop("No export format specified.")
@@ -26,16 +30,50 @@ hap.convert <- function(hap,format=c("MEGA","STRUCTURE","FSTRUCTURE","RQTL","AB"
 
   MEGA.F = function(...) {
     # TODO http://www.megasoftware.net/mega4/mega4.pdf
+    
   }
 
   RQTL.F = function(...) {
     # TODO http://www.inside-r.org/packages/cran/qtl/docs/read.cross
 
-    # line id in first column, marker names across header, chromosome on second line, A B H genotypes
+    # line id in first column, marker names across header, chromosome on second line, A B H genotypes, specific columns empty
   }
 
   STRUCTURE.F = function(...) {
     # TODO http://pritchardlab.stanford.edu/structure_software/release_versions/v2.3.4/structure_doc.pdf
+    
+    strfile = read.table(file="hapFile.txt", header=TRUE,check.names=FALSE)
+    dim(strfile)
+    
+    # remove SNPs where 2 or more SNPs in same tag / keeps the first SNP in that tag
+    strfile = strfile[!duplicated(strfile$rs),]
+    dim(strfile)
+    
+    strfile = as.matrix(strfile[as.numeric(paste(strfile$present))>0.8,10:ncol(strfile)])
+    dim(strfile)
+    strfile[1:5,1:5]
+    
+    # transpose the strfile for STRUCTURE input
+    strfile <- t(strfile)
+    strfile[1:5,1:5]
+    
+    # replacing nucleotides with numeric values; A=1, C=2, G=3, T=4, H=N=-9
+    # TODO expand for non-standard genotypes
+    strfile[strfile=="A"]=1
+    strfile[strfile=="C"]=2
+    strfile[strfile=="G"]=3
+    strfile[strfile=="T"]=4
+    strfile[strfile=="H"]=-9
+    strfile[strfile=="N"]=-9
+    
+    strfile <- as.data.frame(strfile)
+    strfile[1:5,1:5]
+    
+    # writing out the strfile for STRUCTURE program in .txt format
+    if(write.file) {
+      write.converted(strfile, file.name, "structure", ".txt", sep="\t")
+    }
+    
   }
 
   FSTRUCTURE.F = function(...) {
@@ -163,58 +201,61 @@ hap.convert <- function(hap,format=c("MEGA","STRUCTURE","FSTRUCTURE","RQTL","AB"
       geno.codes = c("ab","cd","ef","eg","hk","lm","ll","nn","np","--")
 
       # Assumes UNEAK code structure
-
-      # Custom Genotype Calling & Data Filtering
-
-      call.hets <- function(x)  {
-        Counts <- as.numeric(strsplit(as.character(x),"\\|")[[1]])
-        Total <- sum(Counts)
-        Minor <- min(Counts)
-        Major <- which(Counts==max(Counts))[1]
-        R1 <- Minor/Total
-        {
-
-          # If there are no reads, call it NA
-
-          if (Total == 0)	{
-            return(NA)
-          }
-
-          # This is where genotype calls are customized.
-          # If one allele has no counts, the second allele must have 5 counts or more to be called homozygous for that allele.
-          # If there is less than 5 counts, NA is returned
-
-          else if (Minor == 0 && Total <= 4) {
-            return(NA)
-          }
-
-          else if (Minor == 0 && Total > 4)	{
-            return(c(0,2)[Major])
-          }
-
-          # If the minor allele frequency for a given genotype is less than 10%,  minor allele is considered a likely error
-          # and the genotype is considered homozygous for the major allele
-
-          else if (Minor > 0 &&  R1 < 0.10)	{
-            return(c(0,2)[Major])
-          }
-
-          else if (Minor > 0 &&  R1 >= 0.10)	{
-            return(1)
-          }
-          else return(1)
-        }
-      }
-
-      count.hets <- function(Matrix)	{
-        Mat <- as.matrix(Matrix)
-        Vec <- as.vector(Mat)
-
-        out.Vec <- sapply(Vec, call.hets)
-
-        out.Mat <- matrix(out.Vec, nrow=nrow(Mat))
-        return(out.Mat)
-      }
+      
+    }
+  }
+  
+  DNASP.F = function(...) {
+    # TODO
+    ##########################
+    ## Input file for DnaSP ##
+    ##########################
+    hapmap3 = as.matrix(hap[as.numeric(paste(hap$present))>0.80,c(10:ncol(hap))])
+    hapmap3 = hapmap3[sample(1:nrow(hapmap3), 2000),]
+    hapmap3lin1 = hapmap3[,colnames(hapmap3) %in% lin1$TA]
+    hapmap3lin2 = hapmap3[,colnames(hapmap3) %in% lin2$TA]
+    hapmap3mc = hapmap3[,colnames(hapmap3) %in% mc$TA]
+    hapmap3 = cbind(hapmap3mc, hapmap3lin1, hapmap3lin2, hapmap3)
+    hapmap3 = hapmap3[,!duplicated(colnames(hapmap3))]
+    hapmap3 = cbind(hapmap3, hapmap3)
+    hapmap3cols_A = paste(colnames(hapmap3)[1:(ncol(hapmap3)/2)], "_A", sep="")
+    hapmap3cols_B = paste(colnames(hapmap3)[1:(ncol(hapmap3)/2)], "_B", sep="")
+    hapmap3cols = c(hapmap3cols_A, hapmap3cols_B)
+    colnames(hapmap3) = hapmap3cols
+    hapmap3[1:4,1:15]
+    hapmap3[hapmap3=="H"]="N"
+    hapmap3[1:4,1:15]
+    hapmap3 = t(hapmap3)
+    hapmap3 = cbind(rep(1:(nrow(hapmap3)/2), 2), hapmap3)
+    odr = order(as.numeric(hapmap3[,1]))
+    hapmap3 = hapmap3[odr,]
+    hapmap3 = hapmap3[,-1]
+    hapmap3 = t(hapmap3)
+    hapmap3excols = cbind(rsID=paste("rs", 1:nrow(hapmap3), sep=""), position=1:nrow(hapmap3))
+    hapmap3 = cbind(hapmap3excols, hapmap3)
+    hapmap3[1:4,1:15]
+    
+    if(write.file) {
+      write.converted(hapmap3, file.name, "dnasp", ".phased")
+    }
+  }
+  
+  PHYLIP.F = function(...) {
+    # TODO
+    phylip = as.matrix(hap[as.numeric(paste(hap$present))>0.80,10:ncol(hap)])
+    phylip = t(phylip[sample(1:nrow(phylip), 2000),])
+    phyliplin1 = phylip[rownames(phylip) %in% lin1$TA,]
+    phyliplin2 = phylip[rownames(phylip) %in% lin2$TA,]
+    phylip = rbind(phyliplin1, phyliplin2, phylip)
+    phylip = phylip[!duplicated(rownames(phylip)),]
+    
+    phynames = paste("sequen", seq(1001,2070,by=1), sep="")
+    rows = cbind(rownames(phylip), phynames)
+    rownames(phylip) = phynames
+    phylip[phylip=="H"]="N"
+    
+    if(write.file) {
+      write.converted(phylip, file.name, "phylip", ".phy")
     }
   }
 
@@ -247,6 +288,14 @@ hap.convert <- function(hap,format=c("MEGA","STRUCTURE","FSTRUCTURE","RQTL","AB"
   if(any(format=="JOINMAP")){
     output$JOINMAP = JOINMAP.F()
   }
+  
+  if(any(format=="DNASP")){
+    output$DNASP = DNASP.F()
+  }
+  
+  if(any(format=="PHYLIP")){
+    output$PHYLIP = PHYLIP.F()
+  }
 
   names(output) = format
   cat("DONE","\n")
@@ -270,82 +319,6 @@ check.parents <- function(x,y) {
   }
 }
 
-####################
-phylip = as.matrix(hap[as.numeric(paste(hap$present))>0.80,10:ncol(hap)])
-phylip = t(phylip[sample(1:nrow(phylip), 2000),])
-phyliplin1 = phylip[rownames(phylip) %in% lin1$TA,]
-phyliplin2 = phylip[rownames(phylip) %in% lin2$TA,]
-phylip = rbind(phyliplin1, phyliplin2, phylip)
-phylip = phylip[!duplicated(rownames(phylip)),]
-
-phynames = paste("sequen", seq(1001,2070,by=1), sep="")
-rows = cbind(rownames(phylip), phynames)
-rownames(phylip) = phynames
-phylip[phylip=="H"]="N"
-
-write.table(phylip, file="phylip.phy", col.names=F, quote=F)
-
-##########################
-## Input file for DnaSP ##
-##########################
-hapmap3 = as.matrix(hap[as.numeric(paste(hap$present))>0.80,c(10:ncol(hap))])
-hapmap3 = hapmap3[sample(1:nrow(hapmap3), 2000),]
-hapmap3lin1 = hapmap3[,colnames(hapmap3) %in% lin1$TA]
-hapmap3lin2 = hapmap3[,colnames(hapmap3) %in% lin2$TA]
-hapmap3mc = hapmap3[,colnames(hapmap3) %in% mc$TA]
-hapmap3 = cbind(hapmap3mc, hapmap3lin1, hapmap3lin2, hapmap3)
-hapmap3 = hapmap3[,!duplicated(colnames(hapmap3))]
-hapmap3 = cbind(hapmap3, hapmap3)
-hapmap3cols_A = paste(colnames(hapmap3)[1:(ncol(hapmap3)/2)], "_A", sep="")
-hapmap3cols_B = paste(colnames(hapmap3)[1:(ncol(hapmap3)/2)], "_B", sep="")
-hapmap3cols = c(hapmap3cols_A, hapmap3cols_B)
-colnames(hapmap3) = hapmap3cols
-hapmap3[1:4,1:15]
-hapmap3[hapmap3=="H"]="N"
-hapmap3[1:4,1:15]
-hapmap3 = t(hapmap3)
-hapmap3 = cbind(rep(1:(nrow(hapmap3)/2), 2), hapmap3)
-odr = order(as.numeric(hapmap3[,1]))
-hapmap3 = hapmap3[odr,]
-hapmap3 = hapmap3[,-1]
-hapmap3 = t(hapmap3)
-hapmap3excols = cbind(rsID=paste("rs", 1:nrow(hapmap3), sep=""), position=1:nrow(hapmap3))
-hapmap3 = cbind(hapmap3excols, hapmap3)
-hapmap3[1:4,1:15]
-write.table(hapmap3, file="hapmap3.hapmap3.phased", row.names=F, quote=F, sep=" ")
-write.csv(hapmap3, file="hapmap3.hapmap3.phased.csv", row.names=T, quote=F)
-
-#########
-# STRUCTURE
-
-# formating input file for STRUCTURE program
-
-strfile = read.table(file="hapFile.txt", header=TRUE,check.names=FALSE)
-dim(strfile)
-
-# remove SNPs where 2 or more SNPs in same tag / keeps the first SNP in that tag
-strfile = strfile[!duplicated(strfile$rs),]
-dim(strfile)
-
-strfile = as.matrix(strfile[as.numeric(paste(strfile$present))>0.8,10:ncol(strfile)])
-dim(strfile)
-strfile[1:5,1:5]
-
-# transpose the strfile for STRUCTURE input
-strfile <- t(strfile)
-strfile[1:5,1:5]
-
-# replacing nucleotides with numeric values; A=1, C=2, G=3, T=4, H=N=-9
-strfile[strfile=="A"]=1
-strfile[strfile=="C"]=2
-strfile[strfile=="G"]=3
-strfile[strfile=="T"]=4
-strfile[strfile=="H"]=-9
-strfile[strfile=="N"]=-9
-
-strfile <- as.data.frame(strfile)
-strfile[1:5,1:5]
-
-# writing out the strfile for STRUCTURE program in .txt format
-write.table(strfile, file="structure_input.txt", quote=F, row.names=T, col.names=F, sep="\t")
-#############
+write.converted <- function(obj, fname, method, ext, ...) {
+  write.table(obj, file=paste(fname,"_",method,".",ext,sep=""), row.names=F, quote=F, ...)
+}
