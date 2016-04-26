@@ -7,9 +7,11 @@
 #'
 #' @param hap the hap object to convert
 #' @param format the format you wish to convert the hap object to
+#' @param data.col the column corresponding to the first individual
 #' @param write.file should the converted file be written
 #' @param filename name to use for the output file
 #' @param parents columns for the two parents being used to convert to RQTL and AB format
+#' @param encoding numbers to reencode alleles (minor, het, major)
 #' @param jm.pop joinmap population type
 #'
 #' @keywords
@@ -18,7 +20,7 @@
 #'
 #' @export
 
-hap.convert <- function(hap, format=c("MEGA","STRUCTURE","FSTRUCTURE","RQTL","AB","GAPIT","JOINMAP","DNASP","PHYLIP","GENO"), write.file=FALSE, filename, parents=NULL, jm.pop = c("BC1","F2","RIx","DH","DH1","DH2","HAP","HAP1","CP","BCpxFy","IMxFy")) {
+hap.convert <- function(hap, format=c("MEGA","STRUCTURE","FSTRUCTURE","RQTL","AB","GAPIT","JOINMAP","DNASP","PHYLIP","GENO"), data.col = 13, write.file=FALSE, filename, parents=NULL, encoding=c(-1,0,1), jm.pop = c("BC1","F2","RIx","DH","DH1","DH2","HAP","HAP1","CP","BCpxFy","IMxFy")) {
 
   # TODO add: PLINK (http://pngu.mgh.harvard.edu/~purcell/plink/data.shtml#bed)
   # TODO add: CERVUS: three files (list possible parents, list of all progeny, genotype file)
@@ -31,12 +33,19 @@ hap.convert <- function(hap, format=c("MEGA","STRUCTURE","FSTRUCTURE","RQTL","AB
   MEGA.F = function(...) {
     # TODO http://www.megasoftware.net/mega4/mega4.pdf
     
+    if(write.file) {
+      write.converted(hap.calls, file.name, "mega", ".txt", sep="\t")
+    }
   }
 
   RQTL.F = function(...) {
     # TODO http://www.inside-r.org/packages/cran/qtl/docs/read.cross
 
     # line id in first column, marker names across header, chromosome on second line, A B H genotypes, specific columns empty
+    
+    if(write.file) {
+      write.converted(hap.calls, file.name, "rqtl", ".txt", sep="\t")
+    }
   }
 
   STRUCTURE.F = function(...) {
@@ -73,7 +82,6 @@ hap.convert <- function(hap, format=c("MEGA","STRUCTURE","FSTRUCTURE","RQTL","AB
     if(write.file) {
       write.converted(strfile, file.name, "structure", ".txt", sep="\t")
     }
-    
   }
 
   FSTRUCTURE.F = function(...) {
@@ -83,6 +91,10 @@ hap.convert <- function(hap, format=c("MEGA","STRUCTURE","FSTRUCTURE","RQTL","AB
     # The first 6 columns of the file will be ignored; typically include IDs, metadata, etc.
     # only handles bi-allelic loci. The two alleles at each locus can be encoded as desired
     # missing data should be encoded as -9.
+    
+    if(write.file) {
+      write.converted(hap.calls, file.name, "fstructure", ".txt", sep="\t")
+    }
   }
 
   AB.F = function(...) {
@@ -95,8 +107,8 @@ hap.convert <- function(hap, format=c("MEGA","STRUCTURE","FSTRUCTURE","RQTL","AB
 
       print(paste("Using ",colnames(hap)[parents[1]]," and ",colnames(hap)[parents[2]]," as parents.",sep=""))
     } else {
-      p1col = which(grepl(parents[1],colnames(hap)))
-      p2col = which(grepl(parents[2],colnames(hap)))
+      p1col = which(grepl(parents[1],colnames(hap),ignore.case=T))
+      p2col = which(grepl(parents[2],colnames(hap),ignore.case=T))
     }
 
     ## Remove markers that are hets, identical, or missing in both parents
@@ -152,12 +164,20 @@ hap.convert <- function(hap, format=c("MEGA","STRUCTURE","FSTRUCTURE","RQTL","AB
     hap.calls[hap.calls==hap.ab[,p1col]] = "A"
 
     hap.calls
+    
+    if(write.file) {
+      write.converted(hap.calls, file.name, "ab", ".txt", sep="\t")
+    }
   }
 
   GAPIT.F = function(...) {
     # TODO http://www.zzlab.net/GAPIT/gapit_help_document.pdf
     # Required columns: 11 including rs (snp name), chrom, pos
     # Genotypes in double bit or standard iupac codes
+    
+    if(write.file) {
+      write.converted(hap.gap, file.name, "GAPIT", ".txt", sep="\t")
+    }
   }
 
   JOINMAP.F = function(...) {
@@ -202,6 +222,10 @@ hap.convert <- function(hap, format=c("MEGA","STRUCTURE","FSTRUCTURE","RQTL","AB
 
       # Assumes UNEAK code structure
       
+    }
+    
+    if(write.file) {
+      write.converted(hap.calls, file.name, "joinmap", ".txt", sep="\t")
     }
   }
   
@@ -259,32 +283,33 @@ hap.convert <- function(hap, format=c("MEGA","STRUCTURE","FSTRUCTURE","RQTL","AB
     }
   }
   
-  GENO.F() = function(...) {
-    #TODO
-    # Separate function to just convert to geno
-    filter.summary.geno <- function(hap,data.col=13) {
-      hapReturn = list()
-      
-      hap01 = hap
-      hap01[,data.col:ncol(hap01)]=NA
-      
-      ## Define allele a and allele b
-      a = substring(hap$alleles,1,1)
-      a[hap$alleleA<hap$alleleB] = substring(hap$alleles,3,3)[hap$alleleA<hap$alleleB]
-      b = substring(hap$alleles,3,3)
-      b[hap$alleleA<hap$alleleB] = substring(hap$alleles,1,1)[hap$alleleA<hap$alleleB]
-      sum(a == b)
-      
-      ## Turn allele a and allele b into -1 and 1.  Het into 0
-      hap01[hap == a] = "-1"
-      hap01[hap == b] = "1"
-      hap01[hap == "H"] = "0"
-      
-      ## Calculate A matrix using rrBLUP
-      geno = as.matrix(hap01[,data.col:ncol(hap01)])
-      class(geno) = "numeric"
-      geno = t(geno)
-      hapReturn$geno = geno
+  GENO.F = function(...) {
+    if(!"alleles"%in%colnames(hap)) {
+      stop("Alleles column (alleles) missing from hap object")
+    }
+    
+    hap01 = hap
+    hap01[,data.col:ncol(hap01)]=NA
+    
+    ## Define allele a and allele b
+    a = substring(hap$alleles,1,1)
+    a[hap$alleleA<hap$alleleB] = substring(hap$alleles,3,3)[hap$alleleA<hap$alleleB]
+    b = substring(hap$alleles,3,3)
+    b[hap$alleleA<hap$alleleB] = substring(hap$alleles,1,1)[hap$alleleA<hap$alleleB]
+    sum(a == b)
+    
+    # Default: turn a into -1, allele b into 1, het into 0
+    hap01[hap == a] = encoding[1]
+    hap01[hap == b] = encoding[3]
+    hap01[hap == "H"] = encoding[2]
+    
+    geno = as.matrix(hap01[,data.col:ncol(hap01)])
+    class(geno) = "numeric"
+    geno = t(geno)
+    geno
+    
+    if(write.file) {
+      write.converted(hap.calls, file.name, "geno", ".txt", sep="\t")
     }
   }
 
@@ -331,7 +356,7 @@ hap.convert <- function(hap, format=c("MEGA","STRUCTURE","FSTRUCTURE","RQTL","AB
   }
 
   names(output) = format
-  cat("DONE","\n")
+  cat("Done","\n")
   invisible(output)
 }
 
@@ -342,11 +367,11 @@ check.parents <- function(x,y) {
 
   # Check for multiple occurrences of parents, and that they both exist
   if(is.character(x)) {
-    if(length(grep(paste(x,collapse="|"), colnames(y), value=TRUE))<2) {
+    if(length(grep(paste(toupper(x),collapse="|"), toupper(colnames(y)), value=TRUE))<2) {
       stop("Unable to find both parent data columns.")
     }
 
-    if(length(grep(paste(x,collapse="|"), colnames(y), value=TRUE))>2) {
+    if(length(grep(paste(toupper(x),collapse="|"), toupper(colnames(y)), value=TRUE))>2) {
       stop("Found too many parent data columns. Use hap.collapse to merge.")
     }
   }
