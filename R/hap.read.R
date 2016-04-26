@@ -15,25 +15,18 @@
 #'
 #' @export
 
-hap.read <- function(hap, delim="\t", data, genotypes=c(NA,"A","T","C","G","H","N")){
-  if(!file.exists(file)) {
+hap.read <- function(hap.obj, delim="\t", data, genotypes=c(NA,"A","T","C","G","H","N")){
+  if(!file.exists(hap.obj)) {
     stop("File or folder does not exist.")
   }
 
-  if(file.info(file)$isdir) {
-    hap = hap.join(file,delim)
+  if(file.info(hap.obj)$isdir) {
+    hap = hap.join(hap.obj,delim)
   }
   
-  if(!file.info(file)$isdir) {
-    hap = data.table::fread(input=file, sep=delim,check.names=FALSE,header=TRUE, data.table = F,strip.white=T)
+  if(!file.info(hap.obj)$isdir) {
+    hap = data.table::fread(input=hap.obj, sep=delim,check.names=FALSE,header=TRUE, data.table = F,strip.white=T)
     hap = cbind(dif=1,hap)
-  }
-  
-  if(is.data.frame(hap)) {
-    # Simple data check for non-genotypes in first 10 rows
-    if(!all(apply(hap[1:10,5:ncol(hap)],MARGIN=2,function(x) x%in%genotypes))) {
-      stop("Non genotypes detected in hap object. Edit the genotypes parameter or check your hap object.")
-    }
   }
 
   if(!"rs"%in%colnames(hap)) {
@@ -53,7 +46,17 @@ hap.read <- function(hap, delim="\t", data, genotypes=c(NA,"A","T","C","G","H","
   }
   
   if(!missing(data)) {
-    hap = cbind(hap[,"rs"],hap[,"alleles"],hap[,"pos"],hap[,"chrom"],hap[,data:ncol(hap)])
+    hap = cbind(dif=hap$dif,rs=hap$rs,alleles=hap$alleles,pos=hap$pos,chrom=hap$chrom,hap[,(data+1):ncol(hap)])
+    
+    # Simple data check for non-genotypes in first 10 roww
+    if(!all(apply(hap[1:10,6:ncol(hap)],MARGIN=2,function(x) x%in%genotypes))) {
+      stop("Non genotypes detected in hap object. Edit the genotypes parameter or check your hap object.")
+    }
+  }
+  
+  # Simple data check for non-genotypes in first 10 rows
+  if(!all(apply(hap[1:10,6:ncol(hap)],MARGIN=2,function(x) x%in%genotypes))) {
+    stop("Non genotypes detected in hap object. Edit the genotypes parameter or check your hap object.")
   }
   
   invisible(hap)
