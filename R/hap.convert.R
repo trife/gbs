@@ -18,7 +18,7 @@
 #'
 #' @export
 
-hap.convert <- function(hap, format=c("MEGA","STRUCTURE","FSTRUCTURE","RQTL","AB","GAPIT","JOINMAP","DNASP","PHYLIP"), write.file=FALSE, filename, parents=NULL, jm.pop = c("BC1","F2","RIx","DH","DH1","DH2","HAP","HAP1","CP","BCpxFy","IMxFy")) {
+hap.convert <- function(hap, format=c("MEGA","STRUCTURE","FSTRUCTURE","RQTL","AB","GAPIT","JOINMAP","DNASP","PHYLIP","GENO"), write.file=FALSE, filename, parents=NULL, jm.pop = c("BC1","F2","RIx","DH","DH1","DH2","HAP","HAP1","CP","BCpxFy","IMxFy")) {
 
   # TODO add: PLINK (http://pngu.mgh.harvard.edu/~purcell/plink/data.shtml#bed)
   # TODO add: CERVUS: three files (list possible parents, list of all progeny, genotype file)
@@ -258,6 +258,35 @@ hap.convert <- function(hap, format=c("MEGA","STRUCTURE","FSTRUCTURE","RQTL","AB
       write.converted(phylip, file.name, "phylip", ".phy")
     }
   }
+  
+  GENO.F() = function(...) {
+    #TODO
+    # Separate function to just convert to geno
+    filter.summary.geno <- function(hap,data.col=13) {
+      hapReturn = list()
+      
+      hap01 = hap
+      hap01[,data.col:ncol(hap01)]=NA
+      
+      ## Define allele a and allele b
+      a = substring(hap$alleles,1,1)
+      a[hap$alleleA<hap$alleleB] = substring(hap$alleles,3,3)[hap$alleleA<hap$alleleB]
+      b = substring(hap$alleles,3,3)
+      b[hap$alleleA<hap$alleleB] = substring(hap$alleles,1,1)[hap$alleleA<hap$alleleB]
+      sum(a == b)
+      
+      ## Turn allele a and allele b into -1 and 1.  Het into 0
+      hap01[hap == a] = "-1"
+      hap01[hap == b] = "1"
+      hap01[hap == "H"] = "0"
+      
+      ## Calculate A matrix using rrBLUP
+      geno = as.matrix(hap01[,data.col:ncol(hap01)])
+      class(geno) = "numeric"
+      geno = t(geno)
+      hapReturn$geno = geno
+    }
+  }
 
   output = list()
 
@@ -295,6 +324,10 @@ hap.convert <- function(hap, format=c("MEGA","STRUCTURE","FSTRUCTURE","RQTL","AB
   
   if(any(format=="PHYLIP")){
     output$PHYLIP = PHYLIP.F()
+  }
+  
+  if(any(format=="GENO")){
+    output$GENO = GENO.F()
   }
 
   names(output) = format
