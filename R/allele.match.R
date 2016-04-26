@@ -16,7 +16,7 @@
 #'
 #' @export
 
-allele.match <- function(hap, result=c("count","percent"), genotypes, histgraph=F){
+allele.match <- function(hap, result=c("count","percent"), genotypes=c(NA,"A","C","G","T","H","N"), histgraph=F){
   if(!"count"%in%result && !"percent"%in%result) {
     stop("Result type must be specified.")
   }
@@ -24,7 +24,7 @@ allele.match <- function(hap, result=c("count","percent"), genotypes, histgraph=
   allele.match <- hap
 
   # Check to ensure input matrix has correct format
-  genotypes <- c(genotypes,NA,"A","C","G","T","H","N","a","c","g","t","h","n")
+  genotypes <- c(genotypes,"a","c","g","t","h","n")
 
   if(!all(apply(allele.match,MARGIN=2,function(x) x%in%genotypes))) {
     uniqCalls <- unique(c(hap))
