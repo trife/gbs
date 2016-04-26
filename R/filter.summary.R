@@ -1,11 +1,13 @@
 #' Filter Summary
 #' 
-#' Processes hap object, calculates summary statistics, and graphs relevant stats
+#' Processes hap object, calculates summary statistics, and returns list with hap and/or geno objects
 #' 
 #' @author Trevor Rife, \email{trife@@ksu.edu}
 #' @author Jesse Poland, \email{jpoland@@ksu.edu}
 #' 
 #' @param hap the hap object to be processed
+#' @param project a project name that will be used to name each tag
+#' @param output type of output desired. hap will use the same calls, geno will convert the hap object to numeric encoding
 #' 
 #' @keywords
 #' 
@@ -13,10 +15,7 @@
 #' 
 #' @export
 
-filter.summary <- function(hap,project="gbs",data.col=4,output=c("hap","geno")){
-  #TODO assume we have chromosome
-  #TODO get rid of the other columns that default with the file if they exist
-  
+filter.summary <- function(hap, project="gbs", output="hap"){
   # Get rid of duplicates
   rs_pos = hap[,c(2,4)]
   dup = duplicated(rs_pos)
@@ -35,9 +34,8 @@ filter.summary <- function(hap,project="gbs",data.col=4,output=c("hap","geno")){
   if(any(grepl("blank",colnames(hap),ignore.case=TRUE))) {
     missing.blank = hap[,grepl("BLANK",colnames(hap),ignore.case=TRUE)]=="N"
     blank = as.matrix(apply(!missing.blank, 2, sum))
-    nrow(hap)
-    blank
-    
+    cat(blank)
+    print("Removing blank wells...")
     # Remove blank columns
     hap = hap[,!grepl("blank",colnames(hap), ignore.case=TRUE)]
   }
@@ -94,7 +92,7 @@ filter.summary <- function(hap,project="gbs",data.col=4,output=c("hap","geno")){
     hap01[hap == "H"] = "0"
     
     ## Calculate A matrix using rrBLUP
-    geno = as.matrix(hap01[,12:ncol(hap01)])
+    geno = as.matrix(hap01[,13:ncol(hap01)])
     class(geno) = "numeric"
     geno = t(geno)
     hapReturn$geno = geno
@@ -104,30 +102,4 @@ filter.summary <- function(hap,project="gbs",data.col=4,output=c("hap","geno")){
   }
   
   hapReturn
-}
-
-# Separate function to just convert to geno
-filter.summary.geno <- function(hap,data.col=12) {
-  hapReturn = list()
-  
-  hap01 = hap
-  hap01[,data.col:ncol(hap01)]=NA
-  
-  ## Define allele a and allele b
-  a = substring(hap$alleles,1,1)
-  a[hap$alleleA<hap$alleleB] = substring(hap$alleles,3,3)[hap$alleleA<hap$alleleB]
-  b = substring(hap$alleles,3,3)
-  b[hap$alleleA<hap$alleleB] = substring(hap$alleles,1,1)[hap$alleleA<hap$alleleB]
-  sum(a == b)
-  
-  ## Turn allele a and allele b into -1 and 1.  Het into 0
-  hap01[hap == a] = "-1"
-  hap01[hap == b] = "1"
-  hap01[hap == "H"] = "0"
-  
-  ## Calculate A matrix using rrBLUP
-  geno = as.matrix(hap01[,data.col:ncol(hap01)])
-  class(geno) = "numeric"
-  geno = t(geno)
-  hapReturn$geno = geno
 }
