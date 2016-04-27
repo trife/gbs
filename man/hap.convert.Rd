@@ -5,15 +5,27 @@
 \title{Convert hap objects to other formats}
 \usage{
 hap.convert(hap, format = c("MEGA", "STRUCTURE", "FSTRUCTURE", "RQTL", "AB",
-  "GAPIT", "JOINMAP"), parents = NULL, jm.pop = c("BC1", "F2", "RIx", "DH",
-  "DH1", "DH2", "HAP", "HAP1", "CP", "BCpxFy", "IMxFy"))
+  "GAPIT", "JOINMAP", "DNASP", "PHYLIP", "GENO"), data.col = 13,
+  write.file = FALSE, filename, parents = NULL, encoding = c(-1, 0, 1),
+  jm.pop = c("BC1", "F2", "RIx", "DH", "DH1", "DH2", "HAP", "HAP1", "CP",
+  "BCpxFy", "IMxFy"))
 }
 \arguments{
+\item{hap}{the hap object to convert}
+
 \item{format}{the format you wish to convert the hap object to}
+
+\item{data.col}{the column corresponding to the first individual}
+
+\item{write.file}{should the converted file be written}
+
+\item{filename}{name to use for the output file}
 
 \item{parents}{columns for the two parents being used to convert to RQTL and AB format}
 
-\item{hap.obj}{the hap object to convert}
+\item{encoding}{numbers to reencode alleles (minor, het, major)}
+
+\item{jm.pop}{joinmap population type}
 }
 \description{
 Takes in hap files and converts them to the formats needed for other analysis programs
@@ -25,8 +37,6 @@ Takes in hap files and converts them to the formats needed for other analysis pr
 Trevor Rife, \email{trife@ksu.edu}
 
 Narinder Singh, \email{nss470@ksu.edu}
-
-Traci Kantarski, \email{tkantarski@ksu.edu}
 }
 \keyword{}
 

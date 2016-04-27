@@ -4,15 +4,20 @@
 \alias{hap.impute}
 \title{Impute markers in gbs}
 \usage{
-hap.impute(geno, method = c("mean", "EM", "RF", "HMM", "median", "KNN",
-  "SVD"))
+hap.impute(geno, method, k = 4, maxiter = 10, n.core = 1, ...)
 }
 \arguments{
-\item{geno}{the geno object to impute}
+\item{geno}{the geno object to impute. Each row is an individual and each column a marker. Genotypic data should be encoded as -1,0,1}
 
 \item{method}{the method to use for imputation}
 
-\item{parents}{columns for the two parents being used to convert to RQTL and AB format}
+\item{k}{number of clusters for KNN imputation}
+
+\item{maxiter}{maximum number of iterations for RF and SVD}
+
+\item{n.core}{number of cores to use for RF imputation}
+
+\item{...}{additional arguments for rrBLUP::A.mat, randomForest::na.roughfix, missForest::missForest}
 }
 \description{
 Takes in hap object and impute markers
@@ -21,9 +26,11 @@ Takes in hap object and impute markers
 
 }
 \author{
-Chris Gaynor
+Chris Gaynor, \email{chris.gaynor@roslin.ed.ac.uk}
 
 Trevor Rife, \email{trife@ksu.edu}
+
+Jessica Rutkoski, \email{jer263@cornell.edu}
 }
 \keyword{}
 
