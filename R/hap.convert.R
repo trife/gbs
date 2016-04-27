@@ -44,19 +44,43 @@ hap.convert <- function(hap, format, data.col = 13, write.file=FALSE, filename, 
   }
 
   RQTL.F = function(...) {
-    # TODO http://www.inside-r.org/packages/cran/qtl/docs/read.cross
+    
+    # Data checks
+    if(length(unique(hap$chrom))<=1) {
+      stop("Only one chromosome detected. Fix chrom and pos columns.")
+    }
+    
+    if(!"chrom"%in%colnames(hap) | !"pos"%in%colnames(hap)) {
+      stop("chrom or pos column missing.")
+    }
+    
+    # Reorder based on chrom/pos
+    hap = hap[with(hap, order(chrom, pos)), ]
+    
+    # Convert to AB
+    hap.ab = AB.F()
+    
+    # Remove parents
+    hap.ab = hap.ab[,-which(names(hap.ab) %in% parents)]
+    
+    # Change structure
+    rqtl.data = t(hap.ab[,data.col:ncol(hap.ab)])
 
-    # line id in first column, marker names across header, chromosome on second line, A B H genotypes, specific columns empty
+    rqtl.headers = rbind(c("id",hap.ab$rs),c("",hap.ab$chrom),c("",hap.ab$pos))
+    rqtl.data = cbind(row.names(rqtl.data),rqtl.data)
+    
+    rqtl.out = rbind(rqtl.headers,rqtl.data)
+    rqtl.out
     
     if(write.file) {
-      write.converted(hap.calls, file.name, "rqtl", ".txt", sep="\t")
+      write.converted(hap.calls, file.name, "rqtl_gen", ".csv", sep="\t", col.names=F)
     }
   }
 
   STRUCTURE.F = function(...) {
     strfile = hap
     
-    # remove SNPs where 2 or more SNPs in same tag / keeps the first SNP in that tag
+    # Remove duplicate tags
     if(!"rsOrig"%in%colnames(strfile)) {
       strfile = strfile[!duplicated(strfile$rsOrig),]
     }
@@ -81,7 +105,7 @@ hap.convert <- function(hap, format, data.col = 13, write.file=FALSE, filename, 
     
     as.data.frame(strfile)
     
-    # writing out the strfile for STRUCTURE program in .txt format
+    # Writing out the strfile for STRUCTURE program in .txt format
     if(write.file) {
       write.converted(strfile, file.name, "structure", ".txt", sep="\t")
     }
@@ -220,8 +244,6 @@ hap.convert <- function(hap, format, data.col = 13, write.file=FALSE, filename, 
     if(any(jm.pop)=="CP") {
       pop.types = c("<abxcd>","<efxeg>","<hkxhk>","<lmxll>","<nnxnp>")
       geno.codes = c("ab","cd","ef","eg","hk","lm","ll","nn","np","--")
-
-      # Assumes UNEAK code structure
       
     }
     
