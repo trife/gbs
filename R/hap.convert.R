@@ -172,9 +172,9 @@ hap.convert <- function(hap, format, data.col = 13, write.file=FALSE, filename, 
   }
 
   GAPIT.F = function(...) {
-    # TODO http://www.zzlab.net/GAPIT/gapit_help_document.pdf
-    # Required columns: 11 including rs (snp name), chrom, pos
-    # Genotypes in double bit or standard iupac codes
+    gapit.out = cbind(rs = hap$rs, alleles = hap$alleles, chrom = hap$chrom, pos = hap$pos, strand=NA, assembly=NA, center=NA, alleleA=hap$alleleA, alleleB = hap$alleleB, het = hap$het, maf=hap$maf, hap[,data.col:ncol(hap)])
+    
+    gapit.out
     
     if(write.file) {
       write.converted(hap.gap, file.name, "GAPIT", ".txt", sep="\t")
@@ -231,11 +231,10 @@ hap.convert <- function(hap, format, data.col = 13, write.file=FALSE, filename, 
   }
   
   DNASP.F = function(...) {
-    # TODO
-    ##########################
-    ## Input file for DnaSP ##
-    ##########################
-    hapmap3 = as.matrix(hap[as.numeric(paste(hap$present))>0.80,c(10:ncol(hap))])
+    # TODO http://www.ub.edu/dnasp/DnaSPHelp.pdf
+    
+    hapmap3 = as.matrix(hap[,data.col:ncol(hap)])
+    
     hapmap3 = hapmap3[sample(1:nrow(hapmap3), 2000),]
     hapmap3lin1 = hapmap3[,colnames(hapmap3) %in% lin1$TA]
     hapmap3lin2 = hapmap3[,colnames(hapmap3) %in% lin2$TA]
@@ -266,8 +265,9 @@ hap.convert <- function(hap, format, data.col = 13, write.file=FALSE, filename, 
   }
   
   PHYLIP.F = function(...) {
-    # TODO
-    phylip = as.matrix(hap[as.numeric(paste(hap$present))>0.80,10:ncol(hap)])
+    # TODO http://evolution.genetics.washington.edu/phylip/doc/main.html#inputfiles
+    
+    phylip = as.matrix(hap[,data.col:ncol(hap)])
     phylip = t(phylip[sample(1:nrow(phylip), 2000),])
     phyliplin1 = phylip[rownames(phylip) %in% lin1$TA,]
     phyliplin2 = phylip[rownames(phylip) %in% lin2$TA,]
