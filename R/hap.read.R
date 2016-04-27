@@ -16,21 +16,28 @@
 #' @export
 
 hap.read <- function(hap.obj, delim="\t", data, genotypes=c(NA,"A","T","C","G","H","N")){
-  if(!file.exists(hap.obj)) {
-    stop("File or folder does not exist.")
-  }
-
-  if(file.info(hap.obj)$isdir) {
-    hap = hap.join(hap.obj,delim)
+  
+  if(class(hap.obj)!= "data.frame") {
+    if(!file.exists(hap.obj)) {
+      stop("File or folder does not exist.")
+    }
+    
+    if(file.info(hap.obj)$isdir) {
+      hap = hap.join(hap.obj,delim)
+    }
+    
+    if(!file.info(hap.obj)$isdir) {
+      hap = data.table::fread(input=hap.obj, sep=delim,check.names=FALSE,header=TRUE, data.table = F,strip.white=T)
+      
+      if(!"dif"%in%colnames(hap)) {
+        hap = cbind(dif=1,hap)  
+      }
+    }
+  } else {
+    hap = hap.obj
   }
   
-  if(!file.info(hap.obj)$isdir) {
-    hap = data.table::fread(input=hap.obj, sep=delim,check.names=FALSE,header=TRUE, data.table = F,strip.white=T)
-    
-    if(!"dif"%in%colnames(hap)) {
-      hap = cbind(dif=1,hap)  
-    }
-  }
+  #TODO add base/rename pos
 
   if(!"rs"%in%colnames(hap)) {
     stop("Tag column (rs) missing from hap object")
