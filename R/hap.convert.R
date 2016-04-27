@@ -12,6 +12,8 @@
 #' @param filename name to use for the output file
 #' @param parents columns for the two parents being used to convert to RQTL and AB format
 #' @param encoding numbers to reencode alleles (minor, het, major)
+#' @param genotypes symbols used to denote genotype calls in the hap object
+#' @param missing symbols used to denote missing data in the hap object
 #' @param jm.pop joinmap population type
 #'
 #' @keywords
@@ -20,14 +22,17 @@
 #'
 #' @export
 
-hap.convert <- function(hap, format=c("MEGA","STRUCTURE","FSTRUCTURE","RQTL","AB","GAPIT","JOINMAP","DNASP","PHYLIP","GENO"), data.col = 13, write.file=FALSE, filename, parents=NULL, encoding=c(-1,0,1), jm.pop = c("BC1","F2","RIx","DH","DH1","DH2","HAP","HAP1","CP","BCpxFy","IMxFy")) {
+hap.convert <- function(hap, format, data.col = 13, write.file=FALSE, filename, parents=NULL, encoding=c(-1,0,1), genotypes=c("A","C","G","T","H"), missing=c("N",NA), jm.pop) {
 
   # TODO add: PLINK (http://pngu.mgh.harvard.edu/~purcell/plink/data.shtml#bed)
   # TODO add: CERVUS: three files (list possible parents, list of all progeny, genotype file)
-  # TODO add generic output function
 
   if(missing(format)) {
     stop("No export format specified.")
+  }
+  
+  if(write.file==TRUE & missing(filename)) {
+    stop("Must specify base filename if writing the output file.")
   }
 
   MEGA.F = function(...) {
@@ -49,34 +54,32 @@ hap.convert <- function(hap, format=c("MEGA","STRUCTURE","FSTRUCTURE","RQTL","AB
   }
 
   STRUCTURE.F = function(...) {
-    # TODO http://pritchardlab.stanford.edu/structure_software/release_versions/v2.3.4/structure_doc.pdf
-    
-    strfile = read.table(file="hapFile.txt", header=TRUE,check.names=FALSE)
-    dim(strfile)
+    strfile = hap
     
     # remove SNPs where 2 or more SNPs in same tag / keeps the first SNP in that tag
-    strfile = strfile[!duplicated(strfile$rs),]
-    dim(strfile)
+    if(!"rsOrig"%in%colnames(strfile)) {
+      strfile = strfile[!duplicated(strfile$rsOrig),]
+    }
     
-    strfile = as.matrix(strfile[as.numeric(paste(strfile$present))>0.8,10:ncol(strfile)])
-    dim(strfile)
-    strfile[1:5,1:5]
+    strfile = as.matrix(strfile[,data.col:ncol(strfile)])
     
-    # transpose the strfile for STRUCTURE input
+    # Transpose the strfile for STRUCTURE input
     strfile <- t(strfile)
-    strfile[1:5,1:5]
     
-    # replacing nucleotides with numeric values; A=1, C=2, G=3, T=4, H=N=-9
-    # TODO expand for non-standard genotypes
-    strfile[strfile=="A"]=1
-    strfile[strfile=="C"]=2
-    strfile[strfile=="G"]=3
-    strfile[strfile=="T"]=4
-    strfile[strfile=="H"]=-9
-    strfile[strfile=="N"]=-9
+    # Replace genotypes with numeric values
+    for(i in 1:length(genotypes)) {
+      strfile[strfile==genotypes[i]] = i
+    }
     
-    strfile <- as.data.frame(strfile)
-    strfile[1:5,1:5]
+    for(i in 1:length(missing)) {
+      strfile[strfile==missing[i]] = -9
+      
+      if(is.na(missing[i])) {
+        strfile[is.na(strfile)] = -9
+      }
+    }
+    
+    as.data.frame(strfile)
     
     # writing out the strfile for STRUCTURE program in .txt format
     if(write.file) {
@@ -114,6 +117,7 @@ hap.convert <- function(hap, format=c("MEGA","STRUCTURE","FSTRUCTURE","RQTL","AB
     ## Remove markers that are hets, identical, or missing in both parents
     print("Removing markers that are het, identical, or missing in both parents...")
 
+    hap.clean = hap[,data.col:ncol(hap)]
     hap.clean = hap[hap[,p1col]!="H" & hap[,p2col]!="H",]
     hap.clean = hap.clean[hap.clean[,p1col]!="N" & hap.clean[,p2col]!="N",]
     hap.clean = hap.clean[(hap.clean[,p1col]!=hap.clean[,p2col]),]
@@ -121,19 +125,16 @@ hap.convert <- function(hap, format=c("MEGA","STRUCTURE","FSTRUCTURE","RQTL","AB
     print(paste("Removed ",nrow(hap)-nrow(hap.clean)," markers.",sep=""))
 
     ## Identify two alleles for each marker
-    alleles = apply(hap.clean,MARGIN = 1,function(x) names(table(unlist(lapply(x,as.character)))))
-    alleles = lapply(alleles,function(x) x[!x%in%c("H","N")]) # TODO add option for ignorable genotypes
+    if(!"alleles"%in%colnames(hap.clean)) {
+      alleles = derive.alleles(hap.clean)
+      allele1 = alleles$allele1
+      allele2 = alleles$allele2
+    } else {
+      allele1 = substring(hap$alleles,1,1)
+      allele2 = substring(hap$alleles,3,3)
+    }
 
     ## Identify which allele belongs to which parent and impute missing from the other parent
-    # TODO add an if here to skip this if there's no missing data
-    p1 = hap.clean[,p1col]
-    p2 = hap.clean[,p2col]
-
-    allele1 = lapply(alleles, `[[`, 1)
-    allele1 = unlist(allele1)
-    allele2 = lapply(alleles, `[[`, 2)
-    allele2 = unlist(allele2)
-
     hap.ab = hap.clean
 
     hap.ab[,p1col] = as.character(hap.ab[,p1col])
@@ -284,18 +285,24 @@ hap.convert <- function(hap, format=c("MEGA","STRUCTURE","FSTRUCTURE","RQTL","AB
   }
   
   GENO.F = function(...) {
-    if(!"alleles"%in%colnames(hap)) {
-      stop("Alleles column (alleles) missing from hap object")
-    }
-    
+
     hap01 = hap
     hap01[,data.col:ncol(hap01)]=NA
     
     ## Define allele a and allele b
-    a = substring(hap$alleles,1,1)
+    
+    if(!"alleles"%in%colnames(hap)) {
+      alleles = derive.alleles(hap[,data.col:ncol(hap)])
+      a = alleles$allele1
+      b = alleles$allele2
+    } else {
+      a = substring(hap$alleles,1,1)
+      b = substring(hap$alleles,3,3)
+    }
+    
     a[hap$alleleA<hap$alleleB] = substring(hap$alleles,3,3)[hap$alleleA<hap$alleleB]
-    b = substring(hap$alleles,3,3)
     b[hap$alleleA<hap$alleleB] = substring(hap$alleles,1,1)[hap$alleleA<hap$alleleB]
+    
     sum(a == b)
     
     # Default: turn a into -1, allele b into 1, het into 0
@@ -379,4 +386,17 @@ check.parents <- function(x,y) {
 
 write.converted <- function(obj, fname, method, ext, ...) {
   write.table(obj, file=paste(fname,"_",method,".",ext,sep=""), row.names=F, quote=F, ...)
+}
+
+derive.alleles <- function(hap) {
+  all.alleles = apply(hap, MARGIN = 1,function(x) names(table(unlist(lapply(x,as.character)))))
+  all.alleles = lapply(alleles,function(x) x[!x%in%c("H","N")]) # TODO add option for ignorable genotypes
+  
+  allele1 = lapply(all.alleles, `[[`, 1)
+  allele1 = unlist(allele1)
+  allele2 = lapply(all.alleles, `[[`, 2)
+  allele2 = unlist(allele2)
+  
+  alleles = data.frame(allele1,allel2)
+  invisible(alleles)
 }
