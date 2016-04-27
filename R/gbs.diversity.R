@@ -6,6 +6,7 @@
 #' @author Trevor Rife, \email{trife@@ksu.edu}
 #'
 #' @param hap the hap object to manipulate
+#' @param data.col the column number with the first individual
 #' @param maf.thresh threshold for polymorphism
 #' @param graph option to graph percent polymorphism
 #'
@@ -15,11 +16,9 @@
 #'
 #' @export
 
-gbs.diversity <- function(hap, maf.thresh=0, graph=F){
+gbs.diversity <- function(hap, data.col, maf.thresh=0, graph=F){
 
   output = list()
-  
-  tHap = hap
   
   if(!"alleles"%in%colnames(hap)) {
     stop("Alleles column (alleles) missing from hap object")
@@ -37,8 +36,10 @@ gbs.diversity <- function(hap, maf.thresh=0, graph=F){
     stop("het column missing from hap object. Run filter.summary.")
   }
   
-  a = substr(tHap$alleles,1,1)
-  b = substr(tHap$alleles,3,3)
+  tHap = hap[,data.col:ncol(hap)]
+  
+  a = substr(hap$alleles,1,1)
+  b = substr(hap$alleles,3,3)
 
   # Recalculate allele counts
   tHap$missing = rowSums(tHap == "N", na.rm = T)
