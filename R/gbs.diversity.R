@@ -6,6 +6,8 @@
 #' @author Trevor Rife, \email{trife@@ksu.edu}
 #'
 #' @param hap the hap object to manipulate
+#' @param maf.thresh threshold for polymorphism
+#' @param graph option to graph percent polymorphism
 #'
 #' @keywords
 #'
@@ -13,11 +15,28 @@
 #'
 #' @export
 
-gbs.diversity <- function(hap, mafThresh=0){
+gbs.diversity <- function(hap, maf.thresh=0, graph=F){
 
-  # TODO Calculate maf or error if absent
-
+  output = list()
+  
   tHap = hap
+  
+  if(!"alleles"%in%colnames(hap)) {
+    stop("Alleles column (alleles) missing from hap object")
+  }
+  
+  if(!"alleleA"%in%colnames(hap)) {
+    stop("B allele column missing from hap object. Run filter.summary.")
+  }
+  
+  if(!"alleleB"%in%colnames(hap)) {
+    stop("A allele column missing from hap object. Run filter.summary.")
+  }
+  
+  if(!"het"%in%colnames(hap)) {
+    stop("het column missing from hap object. Run filter.summary.")
+  }
+  
   a = substr(tHap$alleles,1,1)
   b = substr(tHap$alleles,3,3)
 
@@ -31,25 +50,22 @@ gbs.diversity <- function(hap, mafThresh=0){
   tHap$maf = apply(cbind(tHap$alleleA, tHap$alleleB), 1, min) / apply(cbind(tHap$alleleA, tHap$alleleB), 1, sum)
 
   # proportion of polymorphism
-  par(mfrow=c(1,2))
-  polyMarkers = sum(tHap$maf >= mafThresh)
-  totalMarkers = nrow(tHap)
-  cat('Number of polymorphic sites:', polyMarkers)
-  cat('Proportion of polymorphic sites (P):', polyMarkers / totalMarkers)
-  barplot(c(polyMarkers, totalMarkers-polyMarkers), xlim = c(0,5), col = c('lightgray','black'), legend.text = c('Polymorphic','Monomorphic'), ylab = "# markers")
-  pie(c(polyMarkers, totalMarkers-polyMarkers), labels = c('Polymorphic markers','Monomorphic markers'))
-  dev.off()
+  if(graph) {
+    par(mfrow=c(1,2))
+    polyMarkers = sum(tHap$maf >= maf.thresh)
+    totalMarkers = nrow(tHap)
+    cat('Number of polymorphic sites:', polyMarkers,"\n")
+    cat('Proportion of polymorphic sites (P):', polyMarkers / totalMarkers,"\n")
+    barplot(c(polyMarkers, totalMarkers-polyMarkers), xlim = c(0,5), col = c('lightgray','black'), legend.text = c('Polymorphic','Monomorphic'), ylab = "# markers")
+    pie(c(polyMarkers, totalMarkers-polyMarkers), labels = c('Polymorphic \nmarkers','Monomorphic \nmarkers'))
+  }
 
   # Nei's diversity index
   nei = mean(1-(tHap$maf^2)-(1-tHap$maf)^2, na.rm = T)
-  cat("Nei's diversity index:", nei)
-
+  cat("Nei's diversity index:", nei,"\n")
+  output$nei = nei
 
   # FST, possibly use ‘hierfstat’ package
-
-
-  # (1 - p^2 - q^2 )/ # loci
-  # Do na values need to be removed before calculating mean to get correct length? A vs B
-
-
+  
+  invisible(output)
 }
