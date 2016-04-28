@@ -7,37 +7,33 @@
 #'
 #' @param hap a matrix or data frmae consisting consisting of rows (markers) and columns (individuals)
 #' @param result return the number of matched calls, percent identitiy, or both
-#' @param calls optional vector to include non-standard genotype calls
+#' @param genotypes optional vector to include non-standard genotypes
+#' @param histgraph output histograms of the results
 #'
-#' @keywords alleles, hap
+#' @keywords
 #'
 #' @examples
 #'
 #' @export
 
-allele.match <- function(hap,result=c("count","percent"),calls=NULL,histgraph=F){
+allele.match <- function(hap, result=c("count","percent"), genotypes=c(NA,"A","C","G","T","H","N"), histgraph=F){
   if(!"count"%in%result && !"percent"%in%result) {
     stop("Result type must be specified.")
   }
 
   allele.match <- hap
-  uniqCalls <- unique(c(hap))
 
   # Check to ensure input matrix has correct format
-  genotypes <- c(NA,"A","C","G","T","H","N","a","c","g","t","h","n")
-
-  if(!missing(genotypes)) {
-    genotypes <- c(genotypes, calls)
-  }
-
-  offCalls <- paste(shQuote(uniqCalls[!uniqCalls%in%genotypes]), collapse=", ")
+  genotypes <- c(genotypes,"a","c","g","t","h","n")
 
   if(!all(apply(allele.match,MARGIN=2,function(x) x%in%genotypes))) {
+    uniqCalls <- unique(c(hap))
+    offCalls <- paste(shQuote(uniqCalls[!uniqCalls%in%genotypes]), collapse=", ")
     stop("Following non-genotypes calls detected in the input matrix: ", offCalls, ". Edit the calls parameter to allow these.")
   }
 
   cat('\n')
-  message("Supplied dataset has ", nrow(allele.match), " SNPs and ", ncol(allele.match), " individuals.")
+  message("Supplied dataset has ", nrow(hap), " SNPs and ", ncol(hap), " individuals.")
   message('Computing percent identity...')
   cat('\n')
 
@@ -72,19 +68,9 @@ allele.match <- function(hap,result=c("count","percent"),calls=NULL,histgraph=F)
   colnames(id)=colnames(allele.match)
 
   if(histgraph) {
-     pdf(file = "identityHist.pdf", width = 11, height = 8.5)
      hist(id[upper.tri(id)]*100, xlab = paste('%', 'identity'), main = 'Distribution of % identity')
      hist(id[lower.tri(id)], xlab = '# of comparisons', main = 'Distribution of # comparisons')
-     dev.off()
-     cat('\n')
-     message('Histograms are saved as "identityHist.pdf" in your working directory.')
-     cat('\n')
   }
 
-  save(id, file = 'idMatrix.RData')
-
-  message('DONE computing successfully. Computed id matrix is saved as "idMatrix.RData" in your working directory for future usage and can be read in using the following command:')
-  cat('\n')
-  cat("\tload('idMatrix.RData')")
   return(id)
 }

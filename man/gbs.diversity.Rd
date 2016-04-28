@@ -4,10 +4,16 @@
 \alias{gbs.diversity}
 \title{GBS Diversity}
 \usage{
-gbs.diversity(hap)
+gbs.diversity(hap, data.col, maf.thresh = 0, graph = F)
 }
 \arguments{
 \item{hap}{the hap object to manipulate}
+
+\item{data.col}{the column number with the first individual}
+
+\item{maf.thresh}{threshold for polymorphism}
+
+\item{graph}{option to graph percent polymorphism}
 }
 \description{
 Calculate different measures of diveristy in a hap object

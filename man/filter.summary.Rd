@@ -4,14 +4,19 @@
 \alias{filter.summary}
 \title{Filter Summary}
 \usage{
-filter.summary(hap, project = "gbs", data.col = 4, output = c("hap",
-  "geno"))
+filter.summary(hap, project = "gbs", output = "hap", graph = F)
 }
 \arguments{
 \item{hap}{the hap object to be processed}
+
+\item{project}{a project name that will be used to name each tag}
+
+\item{output}{type of output desired. hap will use the same calls, geno will convert the hap object to numeric encoding}
+
+\item{graph}{output graphs for certain stats (blank wells, maf, percent present, het, percent het)}
 }
 \description{
-Processes hap object, calculates summary statistics, and graphs relevant stats
+Processes hap object, calculates summary statistics, returns list with hap and/or geno objects, and prints several graphs of summary statistics
 }
 \examples{
 

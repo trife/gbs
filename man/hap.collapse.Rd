@@ -4,19 +4,19 @@
 \alias{hap.collapse}
 \title{Hap Collapse}
 \usage{
-hap.collapse(hap, names, match, method)
+hap.collapse(hap, names, match)
 }
 \arguments{
-\item{hap}{the input hap object}
+\item{hap}{the input hap object consisting only of individuals (columns) and markers (rows)}
 
-\item{names}{the name of a specific line to merge}
+\item{names}{list of individual(s) to merge}
 
 \item{match}{percent identical genotypes must be before merging}
 
 \item{method}{method used to determine which lines to remove when they don't match each other}
 }
 \description{
-Combines multiple genotypes with the same name in a hap object
+Combines multiple genotypes with the same name (e.g. ind.1,ind.2,...,ind.n) in a hap object
 }
 \examples{
 

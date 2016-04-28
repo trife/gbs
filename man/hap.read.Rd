@@ -2,19 +2,22 @@
 % Please edit documentation in R/hap.read.R
 \name{hap.read}
 \alias{hap.read}
-\title{Read hap file}
+\title{Read hap file or data frame}
 \usage{
-hap.read(file, delim = "\\t")
+hap.read(hap.obj, delim = "\\t", data, genotypes = c(NA, "A", "T", "C", "G",
+  "H", "N"))
 }
 \arguments{
-\item{file}{the hap file}
+\item{delim}{the delimter used in the file(s)}
 
-\item{delim}{the delimter used in the file}
+\item{data}{column number for the first individual. Removes unnecessary columns from the data frame if specified}
 
-\item{data}{column number where genotypes begin}
+\item{genotypes}{list of calls used in the hap object}
+
+\item{hap}{the hap object, file, or folder}
 }
 \description{
-Read in a file to create a hap object
+Read in a file or data frame to create a hap object
 }
 \examples{
 

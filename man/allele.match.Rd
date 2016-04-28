@@ -4,14 +4,17 @@
 \alias{allele.match}
 \title{Allele match}
 \usage{
-allele.match(hap, result = c("count", "percent"), calls = NULL)
+allele.match(hap, result = c("count", "percent"), genotypes = c(NA, "A",
+  "C", "G", "T", "H", "N"), histgraph = F)
 }
 \arguments{
 \item{hap}{a matrix or data frmae consisting consisting of rows (markers) and columns (individuals)}
 
 \item{result}{return the number of matched calls, percent identitiy, or both}
 
-\item{calls}{optional vector to include non-standard genotype calls}
+\item{genotypes}{optional vector to include non-standard genotypes}
+
+\item{histgraph}{output histograms of the results}
 }
 \description{
 This function compares alleles across lines in a hap object
@@ -24,6 +27,5 @@ Narinder Singh, \email{nss470@ksu.edu}
 
 Trevor Rife, \email{trife@ksu.edu}
 }
-\keyword{alleles,}
-\keyword{hap}
+\keyword{}
 

@@ -1,11 +1,11 @@
 #' Hap Collapse
 #' 
-#' Combines multiple genotypes with the same name in a hap object
+#' Combines multiple genotypes with the same name (e.g. ind.1,ind.2,...,ind.n) in a hap object
 #' 
 #' @author Trevor Rife, \email{trife@@ksu.edu}
 #' 
-#' @param hap the input hap object
-#' @param names the name of a specific line to merge
+#' @param hap the input hap object consisting only of individuals (columns) and markers (rows)
+#' @param names list of individual(s) to merge
 #' @param match percent identical genotypes must be before merging
 #' @param method method used to determine which lines to remove when they don't match each other
 #' 
@@ -15,35 +15,30 @@
 #' 
 #' @export
 
-hap.collapse <- function(hap,names,match,method){
-  
-  #TODO make call.fnc more robust
-  #TODO attempts to automatically identify names to merge will break if names contain periods
-  #TODO add different methods for removing lines (strict, step, etc.)
-  #TODO add option to just print out those that don't match
-  
-  call.fnc = function(x) {
-    count = sum(x)
-    if(length(x) == 1) {
-      return(names(x[1]))
-    }
-    if(length(x) == 2 && "N"%in%names(x)) {
-      return(names(x)[names(x)!="N"])
-    }
-    if("H"%in%names(x)) {
-      return("H")
-    }
-    return("H")
-  }
+hap.collapse <- function(hap,names,match){
   
   if(missing(names)) {
-    # Substring names by period in case columns were originally identically named
+    # Substring names by period in case columns were originally identically named (this will break if names contain periods)
     names = unlist(lapply(strsplit(colnames(hap),".",fixed=TRUE), `[[`, 1))
     
     if(!any(duplicated(names))) {
       stop("No duplicate names found in the hap object.")
     }
+  } else {
+    for(i in 1:length(unique(names))) {
+      count = length(colnames(hap)[grepl(names[i],colnames(hap),ignore.case = T)])
+      
+      if(count==0) {
+        stop(paste("\"",names[i],"\""," not present in hap object.",sep=""))
+      }
+      
+      if(count==1) {
+        stop(paste("No duplicates for ","\"",names[i],"\""," found in hap object.",sep=""))
+      }
+    }
   }
+  
+  hap.orig = hap
   
   # Removes lines that don't match each other at a certain percent identity
   if(!missing(match)) {
@@ -51,7 +46,10 @@ hap.collapse <- function(hap,names,match,method){
     hap.new = matrix(nrow=nrow(hap),ncol=0)
     
     for(i in 1:length(unique(names))) {
-      hap.subset = hap[,grepl(unique(names)[i],colnames(hap))]
+      # Remove all dupes from original hap object
+      hap.orig = hap.orig[,!grepl(unique(names)[i],colnames(hap.orig),ignore.case = T)]
+      
+      hap.subset = hap[,grepl(unique(names)[i],colnames(hap),ignore.case = T)]
       subset.identity = allele.match(hap.subset,result = "percent")
       diag(subset.identity) <- NA
       subset.identity[lower.tri(subset.identity)] <- t(subset.identity)[lower.tri(subset.identity)]
@@ -78,17 +76,34 @@ hap.collapse <- function(hap,names,match,method){
   hap.out = matrix(ncol=length(unique(names)),nrow=nrow(hap.new))
   
   for(i in 1:length(unique(names))) {
-    hap.subset = t(hap.new[,grepl(unique(names)[i],colnames(hap.new))])
+    # Remove all dupes from original hap object
+    hap.orig = hap.orig[,!grepl(unique(names)[i],colnames(hap.orig),ignore.case = T)]
+    
+    hap.subset = t(hap.new[,grepl(unique(names)[i],colnames(hap.new),ignore.case = T)])
     x=apply(hap.subset,2,table)
     subset.calls = lapply(x,call.fnc)
     hap.out[,i] = unlist(subset.calls)
     print(paste(unique(names)[i],": ",nrow(hap.subset)," individuals were merged.",sep=""))
   }
   
-  # TODO this currently deletes everything else; needs to remove columns from the original dataset and return it instead
-  
   hap.out = as.data.frame(hap.out)
   colnames(hap.out) = unique(names)
+  hap.orig = cbind(hap.orig,hap.out)
+  
+  invisible(hap.orig)
+}
 
-  hap.out
+# TODO make this more robust (e.g. alternative genotype calls)
+call.fnc = function(x) {
+  count = sum(x)
+  if(length(x) == 1) {
+    return(names(x[1]))
+  }
+  if(length(x) == 2 && "N"%in%names(x)) {
+    return(names(x)[names(x)!="N"])
+  }
+  if("H"%in%names(x)) {
+    return("H")
+  }
+  return("H")
 }
