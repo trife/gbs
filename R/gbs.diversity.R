@@ -34,22 +34,18 @@ gbs.diversity <- function(hap, mafThresh=0){
   par(mfrow=c(1,2))
   polyMarkers = sum(tHap$maf >= mafThresh)
   totalMarkers = nrow(tHap)
-  cat('Number of polymorphic sites:', polyMarkers)
-  cat('Proportion of polymorphic sites (P):', polyMarkers / totalMarkers)
+  cat('>>> Number of polymorphic sites:', polyMarkers)
+  cat('>>> Proportion of polymorphic sites (P):', polyMarkers / totalMarkers)
   barplot(c(polyMarkers, totalMarkers-polyMarkers), xlim = c(0,5), col = c('lightgray','black'), legend.text = c('Polymorphic','Monomorphic'), ylab = "# markers")
   pie(c(polyMarkers, totalMarkers-polyMarkers), labels = c('Polymorphic markers','Monomorphic markers'))
   dev.off()
 
-  # Nei's diversity index
+  # Nei's diversity index | or | Expected heterozygosity
   nei = mean(1-(tHap$maf^2)-(1-tHap$maf)^2, na.rm = T)
-  cat("Nei's diversity index:", nei)
+  cat(">>> Nei's diversity index:", nei)
 
 
-  # FST, possibly use ‘hierfstat’ package
-
-
-  # (1 - p^2 - q^2 )/ # loci
-  # Do na values need to be removed before calculating mean to get correct length? A vs B
+  # FST
 
 
 }
