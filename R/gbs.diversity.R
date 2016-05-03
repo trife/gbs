@@ -1,43 +1,49 @@
-#' GBS Diversity
+#' Determine GBS diversity.
 #'
-#' Calculate different measures of diveristy in a hap object
+#' Calculates different measures of diveristy in a hap object.
 #'
 #' @author Narinder Singh, \email{nss470@@ksu.edu}
 #' @author Trevor Rife, \email{trife@@ksu.edu}
 #'
-#' @param hap the hap object to manipulate
-#' @param data.col the column number with the first individual
-#' @param maf.thresh threshold for polymorphism
-#' @param graph option to graph percent polymorphism
+#' @param hap The hap object to manipulate.
+#' @param data.col The column number with the first individual.
+#' @param maf.thresh A threshold for polymorphism.
+#' @param graph Logical option to graph percent polymorphism.
 #'
-#' @keywords
+#' @details
+#'
+#' @return A list containing the Nei's genetic diversity and FST of the individuals
 #'
 #' @examples
+#' data(wheat)
+#' hap = hap.read(wheat)
+#' hap = filter.summary(hap,project="wheat",output="hap")$hap
+#' gbs.diversity(hap,data.col=14,graph=T)
 #'
 #' @export
 
-gbs.diversity <- function(hap, data.col, maf.thresh=0, graph=F){
+gbs.diversity <- function(hap, data.col=14, maf.thresh=0, graph=F){
 
   output = list()
-
+  
   if(!"alleles"%in%colnames(hap)) {
     stop("Alleles column (alleles) missing from hap object")
   }
-
+  
   if(!"alleleA"%in%colnames(hap)) {
     stop("B allele column missing from hap object. Run filter.summary.")
   }
-
+  
   if(!"alleleB"%in%colnames(hap)) {
     stop("A allele column missing from hap object. Run filter.summary.")
   }
-
+  
   if(!"het"%in%colnames(hap)) {
     stop("het column missing from hap object. Run filter.summary.")
   }
-
+  
   tHap = hap[,data.col:ncol(hap)]
-
+  
   a = substr(hap$alleles,1,1)
   b = substr(hap$alleles,3,3)
 
@@ -51,7 +57,6 @@ gbs.diversity <- function(hap, data.col, maf.thresh=0, graph=F){
   tHap$maf = apply(cbind(tHap$alleleA, tHap$alleleB), 1, min) / apply(cbind(tHap$alleleA, tHap$alleleB), 1, sum)
 
   # proportion of polymorphism
-
   if(graph) {
     par(mfrow=c(1,2))
     polyMarkers = sum(tHap$maf >= maf.thresh)
@@ -62,14 +67,12 @@ gbs.diversity <- function(hap, data.col, maf.thresh=0, graph=F){
     pie(c(polyMarkers, totalMarkers-polyMarkers), labels = c('Polymorphic \nmarkers','Monomorphic \nmarkers'))
   }
 
-  # Nei's diversity index | or | Expected heterozygosity
+  # Nei's diversity index
   nei = mean(1-(tHap$maf^2)-(1-tHap$maf)^2, na.rm = T)
-
   cat("Nei's diversity index:", nei,"\n")
   output$nei = nei
 
-  # FST, possibly use ‘hierfstat’ package
-
+  # TODO FST
+  
   invisible(output)
-
 }

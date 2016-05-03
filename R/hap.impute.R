@@ -1,32 +1,40 @@
-#' Impute markers in gbs
+#' Impute GBS markers.
 #' 
-#' Takes in hap object and impute markers 
+#' Takes in a geno object and imputes markers using various methods.
 #' 
 #' @author Chris Gaynor, \email{chris.gaynor@roslin.ed.ac.uk}
 #' @author Trevor Rife, \email{trife@@ksu.edu}
 #' @author Jessica Rutkoski, \email{jer263@cornell.edu}
 #' 
-#' @param geno the geno object to impute. Each row is an individual and each column a marker. Genotypic data should be encoded as -1,0,1
-#' @param method the method to use for imputation
-#' @param k number of clusters for KNN imputation
-#' @param maxiter maximum number of iterations for RF and SVD
-#' @param n.core number of cores to use for RF imputation
-#' @param ... additional arguments for rrBLUP::A.mat, randomForest::na.roughfix, missForest::missForest
+#' @param geno The geno object to impute. Each row is an individual and each column is a marker. Genotypic data is expected to be encoded as \code{-1,0,1}.
+#' @param method The method to use for imputation. See details.
+#' @param k The number of clusters for KNN imputation.
+#' @param maxiter The maximum number of iterations for RF and SVD imputation.
+#' @param n.core The number of cores to use for RF imputation.
+#' @param ... Aadditional arguments for rrBLUP::A.mat, randomForest::na.roughfix, missForest::missForest
 #' 
-#' @keywords 
+#' @details
+#' @section Methods:
+#' Markers can be imputed using mean, median, EM, Random Forest (RF), K Nearest Neighbors (KNN), and Singular Value Decomposition (SVD)
 #' 
+#' @return
+#'
 #' @examples
-#' 
+#' data(wheat)
+#' hap = hap.read(wheat)
+#' geno = filter.summary(hap,project="wheat",output=c("geno","hap"))$geno
+#' geno.impute = hap.impute(geno,c("MEAN","EM"))
+#' head(geno.impute$mean)
+#' head(geno.impute$EM)
+#'
 #' @export
 
 hap.impute <- function(geno, method, k=4, maxiter=10, n.core=1, ...){
   
-  # TODO verbose all functions
-  
   hap.obj = geno
   method = toupper(method)
   
-  all.methods = c("MEAN","EM","RF","HMM","MEDIAN","KNN","SVD")
+  all.methods = c("MEAN","EM","RF","MEDIAN","KNN","SVD")
   
   if(!any(method%in%all.methods)) {
     stop("Method not specified.")

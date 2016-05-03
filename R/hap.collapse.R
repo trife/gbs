@@ -1,17 +1,21 @@
-#' Hap Collapse
+#' Merge duplicate individuals.
 #' 
-#' Combines multiple genotypes with the same name (e.g. ind.1,ind.2,...,ind.n) in a hap object
+#' Combines multiple individuals that have the same name (e.g. ind.1,ind.2,...,ind.n) in a hap object.
 #' 
 #' @author Trevor Rife, \email{trife@@ksu.edu}
 #' 
-#' @param hap the input hap object consisting only of individuals (columns) and markers (rows)
-#' @param names list of individual(s) to merge
-#' @param match percent identical genotypes must be before merging
-#' @param method method used to determine which lines to remove when they don't match each other
+#' @param hap A hap object consisting only of individuals (columns) and markers (rows).
+#' @param names A list of individual(s) to merge.
+#' @param match The percent matching individuals must be before merging.
 #' 
-#' @keywords
-#' 
+#' @details
+#'
+#' @return The original hap object with duplicate individuals merged.
+#'
 #' @examples
+#' data(dh)
+#' dh = hap.collapse(dh,names=c("TIGER","DANBY"),match=0.9)
+#' head(dh)
 #' 
 #' @export
 
@@ -93,7 +97,7 @@ hap.collapse <- function(hap,names,match){
   invisible(hap.orig)
 }
 
-# TODO make this more robust (e.g. alternative genotype calls)
+# TODO make this more robust (alternative genotype calls)
 call.fnc = function(x) {
   count = sum(x)
   if(length(x) == 1) {

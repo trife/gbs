@@ -1,18 +1,23 @@
-#' Allele match
+#' Allele match.
 #'
-#' This function compares alleles across lines in a hap object
+#' Compares alleles across different individuals in a hap object.
 #'
 #' @author Narinder Singh, \email{nss470@@ksu.edu}
 #' @author Trevor Rife, \email{trife@@ksu.edu}
 #'
-#' @param hap a matrix or data frmae consisting consisting of rows (markers) and columns (individuals)
-#' @param result return the number of matched calls, percent identitiy, or both
-#' @param genotypes optional vector to include non-standard genotypes
-#' @param histgraph output histograms of the results
+#' @param hap A matrix or data frame consisting consisting of rows (markers) and columns (individuals).
+#' @param result The values to be returned. Either the number of matched calls (\code{count}), \code{percent} identitiy, or both.
+#' @param genotypes Optional vector to include non-standard genotypes.
+#' @param histgraph Logical value to graph results.
 #'
-#' @keywords
+#' @details
+#' This function ignores missing data and heterozygous calls.
+#'
+#' @return A matrix with upper triangle equal to the percent identity of the individuals and lower triangle equal to the proportion of alleles that match between two individuals.
 #'
 #' @examples
+#' data(wheat)
+#' wheat.match = allele.match(wheat[,6:ncol(wheat)],histgraph=T)
 #'
 #' @export
 
@@ -68,8 +73,17 @@ allele.match <- function(hap, result=c("count","percent"), genotypes=c(NA,"A","C
   colnames(id)=colnames(allele.match)
 
   if(histgraph) {
-     hist(id[upper.tri(id)]*100, xlab = paste('%', 'identity'), main = 'Distribution of % identity')
-     hist(id[lower.tri(id)], xlab = '# of comparisons', main = 'Distribution of # comparisons')
+    par(mfrow=c(1,2))
+    
+    if(any(result == "percent")) {
+      hist(id[upper.tri(id)]*100, xlab = paste('%', 'identity'), main = 'Distribution of % identity')
+    }
+    
+    if(any(result == "count")) {
+      hist(id[lower.tri(id)], xlab = '# of comparisons', main = 'Distribution of # comparisons')
+    }
+    
+    par(mfrow=c(1,1))
   }
 
   return(id)

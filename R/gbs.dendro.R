@@ -1,20 +1,22 @@
-#' GBS Dendrograms
+#' Constructs dendrogram.
 #'
-#' Create different dendrograms with GBS data borrows some code from picante package
+#' Creates a custom dendrogram with the ability to color both terminal leafs and nodes based on a separate data frame.
 #'
 #' @author Trevor Rife, \email{trife@@ksu.edu}
 #' @author Narinder Singh, \email{nss470@@ksu.edu}
 #'
-#' @param geno the geno object to manipulate
-#' @param df data frame containing items to be plotted
-#' @param taxa string representing the column in the dataframe that contains the names of the taxa in the geno object
-#' @param tips string representing the column in the dataframe that contains the trait of interest for the tips
-#' @param leafs string representing the column in the dataframe that contains the trait of interest for the leafs
-#' @param tipColor a vector of colors to be used for the tips
-#' @param leafColor a vector of colors to be used for the leafs
-#' @param ... additional graphical arguments to pass to the plot.phylo function
+#' @param geno The geno object to use for dendrogram construction.
+#' @param df The data frame containing the items to be plotted.
+#' @param taxa A string representing the column name in the df dataframe that contains the same names that exist in the geno object.
+#' @param tips A string representing the column in the df dataframe that contains the factors to use to color the tips.
+#' @param leafs A string representing the column in the df dataframe that contains the factors to use to color the terminal leafs.
+#' @param tipColor A vector of colors to be used for the tips.
+#' @param leafColor A vector of colors to be used for the leafs.
+#' @param ... Additional graphical arguments to pass to the plot.phylo function.
 #'
-#' @keywords
+#' @details
+#'
+#' @return
 #'
 #' @examples
 #'

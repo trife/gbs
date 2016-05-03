@@ -1,15 +1,14 @@
-#' Hap Join
+#' Bind multiple hap files together
 #' 
-#' Combines multiple hap files into a single hap object
+#' Combines multiple hap files into a single hap object.
 #' 
 #' @author Trevor Rife, \email{trife@@ksu.edu}
 #' 
-#' @param hap.dir directory where hap files are located
+#' @param hap.dir The directory where the hap files are located.
+#' @param delim The file delimiter for the hap files.
 #' 
-#' @keywords
-#' 
-#' @examples
-#' 
+#' @seealso \code{\link{hap.read}}
+#'
 #' @export
 
 hap.join <- function(hap.dir,delim="\t"){
