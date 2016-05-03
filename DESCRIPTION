@@ -1,12 +1,13 @@
 Package: gbs
 Title: Tools for Genotyping-By-Sequencing Data
 Version: 0.0.0.9000
-Authors@R: c(person("Trevor", "Rife", , "trife@ksu.edu", role = c("aut", "cre")),person("Narinder", "Singh", , "trife@ksu.edu", role = c("aut")))
-Description: This package is used for processing and analyzing GBS data.
+Author: Trevor W. Rife <trife@ksu.edu> and Narinder Singh, <nss470@ksu.edu>
+Maintainer: Trevor W. Rife <trife@ksu.edu>
+Description: An assortment of functions for processing, analyzing, and visualizing GBS data
 Depends:
     R (>= 3.0.3)
 Imports:
-   data.table,stats,ape,picante,rrBLUP,lattice,parallel,doParallel,randomForest,missForest,DMwR,bcv
+   data.table, stats, ape, picante, rrBLUP, lattice, parallel, doParallel, randomForest, missForest, DMwR, bcv
 License: GPL2
 LazyData: false
 RoxygenNote: 5.0.1
