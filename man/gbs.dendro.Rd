@@ -23,16 +23,15 @@ gbs.dendro(geno, df, taxa, tips, leafs, tipColors, leafColors, ...)
 
 \item{leafColor}{A vector of colors to be used for the leafs.}
 }
-\value{
-
-}
 \description{
 Creates a custom dendrogram with the ability to color both terminal leafs and nodes based on a separate data frame.
 }
 \details{
-
+This function allows for the independent coloring of both the terminal leafs of a dendrogram as well as the tips based on an a separate data frame.
 }
 \examples{
+data(wheat)
+gbs.dendro(geno,phenotypes,taxa="line",tips="type",leafs="group",type="fan",edge.width=2)
 
 }
 \author{
