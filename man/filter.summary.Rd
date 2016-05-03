@@ -2,23 +2,29 @@
 % Please edit documentation in R/filter.summary.R
 \name{filter.summary}
 \alias{filter.summary}
-\title{Filter Summary}
+\title{Filter and summarize the hap object.}
 \usage{
 filter.summary(hap, project = "gbs", output = "hap", graph = F)
 }
 \arguments{
-\item{hap}{the hap object to be processed}
+\item{hap}{The hap object to be processed.}
 
-\item{project}{a project name that will be used to name each tag}
+\item{project}{A string that will be used as a prefix to name each sequence tag.}
 
-\item{output}{type of output desired. hap will use the same calls, geno will convert the hap object to numeric encoding}
+\item{output}{The type of output desired. \code{hap} will use the same calls and \code{geno} will convert the hap object to numeric encoding.}
 
-\item{graph}{output graphs for certain stats (blank wells, maf, percent present, het, percent het)}
+\item{graph}{A logical value that will output graphs for summary statistics (blank wells, maf, percent present, het, percent het).}
 }
 \description{
-Processes hap object, calculates summary statistics, returns list with hap and/or geno objects, and prints several graphs of summary statistics
+Processes the hap object, calculates summary statistics, returns list with hap and/or geno objects, and graphs several summary statistics.
+}
+\details{
+
 }
 \examples{
+data(wheat)
+hap = hap.read(wheat)
+hap = filter.summary(hap,project="wheat",output="hap",graph=T)
 
 }
 \author{
@@ -26,5 +32,4 @@ Trevor Rife, \email{trife@ksu.edu}
 
 Jesse Poland, \email{jpoland@ksu.edu}
 }
-\keyword{}
 

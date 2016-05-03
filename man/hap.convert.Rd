@@ -2,35 +2,52 @@
 % Please edit documentation in R/hap.convert.R
 \name{hap.convert}
 \alias{hap.convert}
-\title{Convert hap objects to other formats}
+\title{Convert hap objects to other formats.}
 \usage{
-hap.convert(hap, format = c("MEGA", "STRUCTURE", "FSTRUCTURE", "RQTL", "AB",
-  "GAPIT", "JOINMAP", "DNASP", "PHYLIP", "GENO"), data.col = 13,
-  write.file = FALSE, filename, parents = NULL, encoding = c(-1, 0, 1),
-  jm.pop = c("BC1", "F2", "RIx", "DH", "DH1", "DH2", "HAP", "HAP1", "CP",
-  "BCpxFy", "IMxFy"))
+hap.convert(hap, output, data.col = 14, write.file = FALSE, filename,
+  parents = NULL, encoding = c(-1, 0, 1), genotypes = c("A", "C", "G",
+  "T", "H"), missing = c("N", NA), pheno)
 }
 \arguments{
-\item{hap}{the hap object to convert}
+\item{hap}{The hap object to convert.}
 
-\item{format}{the format you wish to convert the hap object to}
+\item{output}{The target format.}
 
-\item{data.col}{the column corresponding to the first individual}
+\item{data.col}{The column corresponding to the first individual in the hap object.}
 
-\item{write.file}{should the converted file be written}
+\item{write.file}{Should the converted object be written?}
 
-\item{filename}{name to use for the output file}
+\item{filename}{A name to use as the base for the output file.}
 
-\item{parents}{columns for the two parents being used to convert to RQTL and AB format}
+\item{parents}{Two columns or names of the parents being used to convert to RQTL and AB format.}
 
-\item{encoding}{numbers to reencode alleles (minor, het, major)}
+\item{encoding}{The numbers used to encode alleles (minor, het, major).}
 
-\item{jm.pop}{joinmap population type}
+\item{genotypes}{A vector of symbols to denote genotype calls in the hap object.}
+
+\item{missing}{A vector of symbols used to denote missing data in the hap object.}
+
+\item{pheno}{A data frmae of phenotypes to include in R/qtl output. See details.}
+}
+\value{
+
 }
 \description{
-Takes in hap files and converts them to the formats needed for other analysis programs
+Takes in a hap objects and converts it to formats required for other analysis programs and packages.
+}
+\section{Output}{
+
+AB, GENO, RQTL, GAPIT, STRUCTURE, FSTRUCTURE, DNASP, PHYLIP
+
+\subsection{R/qtl}{
+If the a pheno data frame is included, The first column should contain the same names that are int he hap object and each other column should be a phenotype.
+}
 }
 \examples{
+data(dh)
+dh = hap.collapse(dh,names=c("TIGER","DANBY"),match=0.9)
+dh = filter.summary(dh,project="wheat",output="hap")$hap
+dh.ab = hap.convert(dh,output="AB",data.col=13,parents=c("tiger","danby"))
 
 }
 \author{
@@ -38,5 +55,4 @@ Trevor Rife, \email{trife@ksu.edu}
 
 Narinder Singh, \email{nss470@ksu.edu}
 }
-\keyword{}
 

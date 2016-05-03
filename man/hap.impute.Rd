@@ -2,27 +2,40 @@
 % Please edit documentation in R/hap.impute.R
 \name{hap.impute}
 \alias{hap.impute}
-\title{Impute markers in gbs}
+\title{Impute GBS markers.}
 \usage{
 hap.impute(geno, method, k = 4, maxiter = 10, n.core = 1, ...)
 }
 \arguments{
-\item{geno}{the geno object to impute. Each row is an individual and each column a marker. Genotypic data should be encoded as -1,0,1}
+\item{geno}{The geno object to impute. Each row is an individual and each column is a marker. Genotypic data is expected to be encoded as \code{-1,0,1}.}
 
-\item{method}{the method to use for imputation}
+\item{method}{The method to use for imputation. See details.}
 
-\item{k}{number of clusters for KNN imputation}
+\item{k}{The number of clusters for KNN imputation.}
 
-\item{maxiter}{maximum number of iterations for RF and SVD}
+\item{maxiter}{The maximum number of iterations for RF and SVD imputation.}
 
-\item{n.core}{number of cores to use for RF imputation}
+\item{n.core}{The number of cores to use for RF imputation.}
 
-\item{...}{additional arguments for rrBLUP::A.mat, randomForest::na.roughfix, missForest::missForest}
+\item{...}{Aadditional arguments for rrBLUP::A.mat, randomForest::na.roughfix, missForest::missForest}
+}
+\value{
+
 }
 \description{
-Takes in hap object and impute markers
+Takes in a geno object and imputes markers using various methods.
+}
+\section{Methods}{
+
+Markers can be imputed using mean, median, EM, Random Forest (RF), K Nearest Neighbors (KNN), and Singular Value Decomposition (SVD)
 }
 \examples{
+data(wheat)
+hap = hap.read(wheat)
+geno = filter.summary(hap,project="wheat",output=c("geno","hap"))$geno
+geno.impute = hap.impute(geno,c("MEAN","EM"))
+head(geno.impute$mean)
+head(geno.impute$EM)
 
 }
 \author{
@@ -32,5 +45,4 @@ Trevor Rife, \email{trife@ksu.edu}
 
 Jessica Rutkoski, \email{jer263@cornell.edu}
 }
-\keyword{}
 

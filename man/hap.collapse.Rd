@@ -2,27 +2,33 @@
 % Please edit documentation in R/hap.collapse.R
 \name{hap.collapse}
 \alias{hap.collapse}
-\title{Hap Collapse}
+\title{Merge duplicate individuals.}
 \usage{
 hap.collapse(hap, names, match)
 }
 \arguments{
-\item{hap}{the input hap object consisting only of individuals (columns) and markers (rows)}
+\item{hap}{A hap object consisting only of individuals (columns) and markers (rows).}
 
-\item{names}{list of individual(s) to merge}
+\item{names}{A list of individual(s) to merge.}
 
-\item{match}{percent identical genotypes must be before merging}
-
-\item{method}{method used to determine which lines to remove when they don't match each other}
+\item{match}{The percent matching individuals must be before merging.}
+}
+\value{
+The original hap object with duplicate individuals merged.
 }
 \description{
-Combines multiple genotypes with the same name (e.g. ind.1,ind.2,...,ind.n) in a hap object
+Combines multiple individuals that have the same name (e.g. ind.1,ind.2,...,ind.n) in a hap object.
+}
+\details{
+
 }
 \examples{
+data(dh)
+dh = hap.collapse(dh,names=c("TIGER","DANBY"),match=0.9)
+head(dh)
 
 }
 \author{
 Trevor Rife, \email{trife@ksu.edu}
 }
-\keyword{}
 

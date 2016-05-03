@@ -2,29 +2,35 @@
 % Please edit documentation in R/gbs.dendro.R
 \name{gbs.dendro}
 \alias{gbs.dendro}
-\title{GBS Dendrograms}
+\title{Constructs dendrogram.}
 \usage{
 gbs.dendro(geno, df, taxa, tips, leafs, tipColors, leafColors, ...)
 }
 \arguments{
-\item{geno}{the geno object to manipulate}
+\item{geno}{The geno object to use for dendrogram construction.}
 
-\item{df}{data frame containing items to be plotted}
+\item{df}{The data frame containing the items to be plotted.}
 
-\item{taxa}{string representing the column in the dataframe that contains the names of the taxa in the geno object}
+\item{taxa}{A string representing the column name in the df dataframe that contains the same names that exist in the geno object.}
 
-\item{tips}{string representing the column in the dataframe that contains the trait of interest for the tips}
+\item{tips}{A string representing the column in the df dataframe that contains the factors to use to color the tips.}
 
-\item{leafs}{string representing the column in the dataframe that contains the trait of interest for the leafs}
+\item{leafs}{A string representing the column in the df dataframe that contains the factors to use to color the terminal leafs.}
 
-\item{...}{additional graphical arguments to pass to the plot.phylo function}
+\item{...}{Additional graphical arguments to pass to the plot.phylo function.}
 
-\item{tipColor}{a vector of colors to be used for the tips}
+\item{tipColor}{A vector of colors to be used for the tips.}
 
-\item{leafColor}{a vector of colors to be used for the leafs}
+\item{leafColor}{A vector of colors to be used for the leafs.}
+}
+\value{
+
 }
 \description{
-Create different dendrograms with GBS data borrows some code from picante package
+Creates a custom dendrogram with the ability to color both terminal leafs and nodes based on a separate data frame.
+}
+\details{
+
 }
 \examples{
 
@@ -34,5 +40,4 @@ Trevor Rife, \email{trife@ksu.edu}
 
 Narinder Singh, \email{nss470@ksu.edu}
 }
-\keyword{}
 

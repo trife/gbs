@@ -2,24 +2,32 @@
 % Please edit documentation in R/allele.match.R
 \name{allele.match}
 \alias{allele.match}
-\title{Allele match}
+\title{Allele match.}
 \usage{
 allele.match(hap, result = c("count", "percent"), genotypes = c(NA, "A",
   "C", "G", "T", "H", "N"), histgraph = F)
 }
 \arguments{
-\item{hap}{a matrix or data frmae consisting consisting of rows (markers) and columns (individuals)}
+\item{hap}{A matrix or data frame consisting consisting of rows (markers) and columns (individuals).}
 
-\item{result}{return the number of matched calls, percent identitiy, or both}
+\item{result}{The values to be returned. Either the number of matched calls (\code{count}), \code{percent} identitiy, or both.}
 
-\item{genotypes}{optional vector to include non-standard genotypes}
+\item{genotypes}{Optional vector to include non-standard genotypes.}
 
-\item{histgraph}{output histograms of the results}
+\item{histgraph}{Logical value to graph results.}
+}
+\value{
+A matrix with upper triangle equal to the percent identity of the individuals and lower triangle equal to the proportion of alleles that match between two individuals.
 }
 \description{
-This function compares alleles across lines in a hap object
+Compares alleles across different individuals in a hap object.
+}
+\details{
+This function ignores missing data and heterozygous calls.
 }
 \examples{
+data(wheat)
+wheat.match = allele.match(wheat[,6:ncol(wheat)],histgraph=T)
 
 }
 \author{
@@ -27,5 +35,4 @@ Narinder Singh, \email{nss470@ksu.edu}
 
 Trevor Rife, \email{trife@ksu.edu}
 }
-\keyword{}
 

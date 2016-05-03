@@ -2,21 +2,22 @@
 % Please edit documentation in R/hap.join.R
 \name{hap.join}
 \alias{hap.join}
-\title{Hap Join}
+\title{Bind multiple hap files together}
 \usage{
 hap.join(hap.dir, delim = "\\t")
 }
 \arguments{
-\item{hap.dir}{directory where hap files are located}
+\item{hap.dir}{The directory where the hap files are located.}
+
+\item{delim}{The file delimiter for the hap files.}
 }
 \description{
-Combines multiple hap files into a single hap object
-}
-\examples{
-
+Combines multiple hap files into a single hap object.
 }
 \author{
 Trevor Rife, \email{trife@ksu.edu}
 }
-\keyword{}
+\seealso{
+\code{\link{hap.read}}
+}
 

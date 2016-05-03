@@ -2,23 +2,33 @@
 % Please edit documentation in R/gbs.diversity.R
 \name{gbs.diversity}
 \alias{gbs.diversity}
-\title{GBS Diversity}
+\title{Determine GBS diversity.}
 \usage{
-gbs.diversity(hap, data.col, maf.thresh = 0, graph = F)
+gbs.diversity(hap, data.col = 14, maf.thresh = 0, graph = F)
 }
 \arguments{
-\item{hap}{the hap object to manipulate}
+\item{hap}{The hap object to manipulate.}
 
-\item{data.col}{the column number with the first individual}
+\item{data.col}{The column number with the first individual.}
 
-\item{maf.thresh}{threshold for polymorphism}
+\item{maf.thresh}{A threshold for polymorphism.}
 
-\item{graph}{option to graph percent polymorphism}
+\item{graph}{Logical option to graph percent polymorphism.}
+}
+\value{
+A list containing the Nei's genetic diversity and FST of the individuals
 }
 \description{
-Calculate different measures of diveristy in a hap object
+Calculates different measures of diveristy in a hap object.
+}
+\details{
+
 }
 \examples{
+data(wheat)
+hap = hap.read(wheat)
+hap = filter.summary(hap,project="wheat",output="hap")$hap
+gbs.diversity(hap,data.col=14,graph=T)
 
 }
 \author{
@@ -26,5 +36,4 @@ Narinder Singh, \email{nss470@ksu.edu}
 
 Trevor Rife, \email{trife@ksu.edu}
 }
-\keyword{}
 
