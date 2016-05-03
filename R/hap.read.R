@@ -75,13 +75,13 @@ hap.read <- function(hap.obj, delim="\t", data.col, col.names = c("rs","alleles"
     hap = cbind(dif=hap$dif,rs=hap$rs,alleles=hap$alleles,pos=hap$pos,chrom=hap$chrom,hap[,(data.col+1):ncol(hap)])
     
     # Simple data check for non-genotypes in first 10 roww
-    if(!all(apply(hap[1:10,6:ncol(hap)],MARGIN=2,function(x) x%in%genotypes))) {
+    if(!all(apply(hap[1:10,7:ncol(hap)],MARGIN=2,function(x) x%in%genotypes))) {
       stop("Non genotypes detected in hap object. Edit the genotypes parameter or check your hap object.")
     }
   }
   
   # Simple data check for non-genotypes in first 10 rows
-  if(!all(apply(hap[1:10,6:ncol(hap)],MARGIN=2,function(x) x%in%genotypes))) {
+  if(!all(apply(hap[1:10,7:ncol(hap)],MARGIN=2,function(x) x%in%genotypes))) {
     stop("Non genotypes detected in hap object. Edit the genotypes parameter or check your hap object.")
   }
   

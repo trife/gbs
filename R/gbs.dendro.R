@@ -15,10 +15,11 @@
 #' @param ... Additional graphical arguments to pass to the plot.phylo function.
 #'
 #' @details
-#'
-#' @return
+#' This function allows for the independent coloring of both the terminal leafs of a dendrogram as well as the tips based on an a separate data frame.
 #'
 #' @examples
+#' data(wheat)
+#' gbs.dendro(geno,phenotypes,taxa="line",tips="type",leafs="group",type="fan",edge.width=2)
 #'
 #' @export
 
@@ -39,49 +40,55 @@ gbs.dendro <- function(geno, df, taxa, tips, leafs, tipColors, leafColors, ...) 
   # color tips
   tip.color <- cbind(hc2$tip.label, 'black')
   
-  if(missing(tipColors)) {
-    tip.color = rainbow(length(levels(df[[tips]])))
+  if(missing(tips)) {
+    tip.color <- rep("black",length(hc2$tip.label))
+  } else {
+    if(missing(tipColors)) {
+      tipColors = rainbow(length(levels(df[[tips]])))
+    }
+    
+    # match order of the data frame matches the tips
+    order <- match(hc2$tip.label, df[,taxa])
+    ordered.trait <- df[tips][order,]
+    
+    # cut up the tip trait and assign a list of colors
+    levs <- levels(ordered.trait)
+    tip.color <- rep("black", times = length(df[[taxa]]))
+    tip.color <- tipColors[match(ordered.trait, levs)]
   }
   
-  # match order of the data frame matches the tips
-  order <- match(hc2$tip.label, df[,taxa])
-  ordered.trait <- df[tips][order,]
-  
-  # cut up the tip trait and assign a list of colors
-  levs <- levels(ordered.trait)
-  tip.color <- rep("black", times = length(df[[taxa]]))
-  tip.color <- tipColors[match(ordered.trait, levs)]
-  
-  
-  # color edges
-  edgeCols=cbind(NA, rep("black", nrow(hc2$edge)), NA, NA)
-  edgeCols[,1]=hc2$tip.label[hc2$edge[,2]]
-  edgeCols[,1][is.na(edgeCols[,1])]='N'
-  
-  for (i in 1:nrow(df)){
-    for (j in 1:nrow(edgeCols)){
-      if (df[i,1]==edgeCols[j,1]){
-        edgeCols[j,3]=as.character(df[i,2])
-        edgeCols[j,4]=as.character(df[i,3])
+  if(missing(leafs)) {
+    edgeCols=cbind(NA, rep("black", nrow(hc2$edge)), NA, NA)
+  } else {
+    edgeCols=cbind(NA, rep("black", nrow(hc2$edge)), NA, NA)
+    edgeCols[,1]=hc2$tip.label[hc2$edge[,2]]
+    edgeCols[,1][is.na(edgeCols[,1])]='N'
+    
+    for (i in 1:nrow(df)){
+      for (j in 1:nrow(edgeCols)){
+        if (df[i,1]==edgeCols[j,1]){
+          edgeCols[j,3]=as.character(df[i,2])
+          edgeCols[j,4]=as.character(df[i,3])
+        }
       }
     }
+    
+    if(missing(leafColors)) {
+      leafColors = rainbow(length(levels(df[[leafs]])))
+    }
+    
+    # match the order of the data frame matches the leafs
+    order <- match(edgeCols[edgeCols[,1]!="N",][,1], df[,taxa])
+    ordered.trait <- df[leafs][order,]
+    
+    # cut up the leaf trait and assign a list of colors
+    levs <- levels(ordered.trait)
+    edge.color <- rep("black", times = length(df[[taxa]]))
+    edge.color <- leafColors[match(ordered.trait, levs)]
+    
+    edgeCols[edgeCols[,1]!="N",][,2]=edge.color
   }
-  
-  if(missing(leafColors)) {
-    leafColors = rainbow(length(levels(df[[leafs]])))
-  }
-  
-  # match the order of the data frame matches the leafs
-  order <- match(edgeCols[edgeCols[,1]!="N",][,1], df[,taxa])
-  ordered.trait <- df[leafs][order,]
-  
-  # cut up the leaf trait and assign a list of colors
-  levs <- levels(ordered.trait)
-  edge.color <- rep("black", times = length(df[[taxa]]))
-  edge.color <- leafColors[match(ordered.trait, levs)]
-  
-  edgeCols[edgeCols[,1]!="N",][,2]=edge.color
-  
+
   # plot
   ape::plot.phylo(hc2, tip.color = tip.color, edge.color = edgeCols[,2], ...)
 }
