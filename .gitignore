@@ -7,3 +7,4 @@ full_test.R
 createRPackage.R
 todo.R
 dev/
+try.R
