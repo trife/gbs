@@ -5,9 +5,8 @@
 #' @author Trevor Rife, \email{trife@@ksu.edu}
 #' @author Jesse Poland, \email{jpoland@@ksu.edu}
 #' 
-#' @param hap The hap object to be processed.
-#' @param project A string that will be used as a prefix to name each sequence tag.
-#' @param output The type of output desired. \code{hap} will use the same calls and \code{geno} will convert the hap object to numeric encoding.
+#' @param hap The gbs object to be processed.
+#' @param geno A logical value that will convert the marker calls to a numeric geno format.
 #' @param graph A logical value that will output graphs for summary statistics (blank wells, maf, percent present, het, percent het).
 #' 
 #' @details
@@ -19,55 +18,49 @@
 #'
 #' @export
 
-filter.summary <- function(hap, project="gbs", output="hap", graph=F){
+filter.summary <- function(hap, geno=F, graph=F){
   
-  # TODO add data checks to verify this is called after hap.read
+  # TODO integrate IUPAC https://bytebucket.org/tasseladmin/tassel-5-source/wiki/docs/Tassel5UserGuide.pdf
+  # TODO use proper hap format https://bitbucket.org/tasseladmin/tassel-5-source/wiki/UserManual/Load/Load
   
-  # Get rid of duplicates and reorder
-  rs_pos = cbind(hap$rs,hap$tagpos)
-  dup = duplicated(rs_pos)
-  noDup = hap[!dup,]
-  odr = order(as.vector(noDup$rs), as.vector(noDup$tagpos))
-  hap = noDup[odr,]
-  
-  # Add new columns
-  rsOrig = hap$rs
-  hap$rs = paste(project, c(1:nrow(hap)), sep="")
-  hap = cbind(rsOrig,hap)
+  if(class(hap)!="gbs") {
+    stop("hap object is incorrect type. Use hap.read to create gbs object.")
+  }
   
   # Check blank wells for data
-  if(any(grepl("blank",colnames(hap),ignore.case=TRUE))) {
-    missing.blank = hap[,grepl("BLANK",colnames(hap),ignore.case=TRUE)]=="N"
+  if(any(grepl("blank",colnames(hap$calls),ignore.case=TRUE))) {
+    missing.blank = hap$calls[,grepl("BLANK",colnames(hap$calls),ignore.case=TRUE)]=="N"
     blank = as.matrix(apply(!missing.blank, 2, sum))
     print("Number of reads in blank wells: ")
     print(blank)
     
     if(graph) {
-      missing.blank = hap[,grepl("BLANK",colnames(hap),ignore.case=TRUE)]=="N"
+      missing.blank = hap$calls[,grepl("BLANK",colnames(hap$calls),ignore.case=TRUE)]=="N"
       blank = as.matrix(apply(!missing.blank, 2, sum))
-      snptot=colSums(hap[,data.col:ncol(hap)]!="N")
+      snptot=colSums(hap$calls[,data.col:ncol(hap$calls)]!="N")
       upper_limit = round(max(snptot)/1000)*1000
       hist(snptot, xlim=c(0,upper_limit), breaks=seq(0,upper_limit, by=1000), main="SNPs number per Sample", xlab="Number of SNPs", sub="Blank wells in red")
       hist(blank, col="red",xlim=c(0,upper_limit), breaks=seq(0,upper_limit, by=1000),add=TRUE )
-      hap = hap[,!grepl("blank",colnames(hap), ignore.case=TRUE)]
+      hap$calls = hap$calls[,!grepl("blank",colnames(hap$calls), ignore.case=TRUE)]
     }
     
     print("Removing blank wells...")
     
     # Remove blank columns
-    hap = hap[,!grepl("blank",colnames(hap), ignore.case=TRUE)]
+    hap$calls = hap$calls[,!grepl("blank",colnames(hap$calls), ignore.case=TRUE)]
   }
   
   # Calculate allele stats
-  a = substring(hap$alleles,1,1)
-  b = substring(hap$alleles,3,3)
+  a = substring(hap$header$alleles,1,1)
+  b = substring(hap$header$alleles,3,3)
   
-  counts = apply(hap[,6:ncol(hap)],MARGIN=1,function(x) table(t(x)))
+  counts = apply(hap$calls,MARGIN=1,function(x) table(t(x)))
   
   alleleA = lapply(1:length(counts),function(x) counts[[x]][names(counts[[x]])==a[x]])
   alleleB = lapply(1:length(counts),function(x) counts[[x]][names(counts[[x]])==b[x]])
-  het = lapply(1:length(counts),function(x) counts[[x]][names(counts[[x]])=="H"])
-  missing = lapply(1:length(counts),function(x) counts[[x]][names(counts[[x]])=="N"])
+  
+  het = lapply(1:length(counts),function(x) counts[[x]][names(counts[[x]])=="H"]) #TODO change for IUPAC
+  missing = lapply(1:length(counts),function(x) counts[[x]][names(counts[[x]])=="N"]) #TODO change for IUPAC
   
   alleleA[!(sapply(alleleA, length))] = 0
   alleleB[!(sapply(alleleB, length))] = 0
@@ -81,70 +74,54 @@ filter.summary <- function(hap, project="gbs", output="hap", graph=F){
   
   present = (alleleA + alleleB) / (alleleA+alleleB+missing+het)
   
-  # Bind columns onto hap
-  hap = cbind(hap[,1:6],alleleA,alleleB,het,present,hap[,7:ncol(hap)])
-  
   # Calculate and add summary stats
-  maf = apply(cbind(hap$alleleA, hap$alleleB), 1, min) / apply(cbind(hap$alleleA, hap$alleleB, hap$het), 1, sum)
-  phet = hap$het / apply(cbind(hap$alleleA, hap$alleleB, hap$het), 1, sum)
-  hap$present = as.numeric(as.character(hap$present))
-  hap = cbind(hap[,c(1:9)], maf, phet, hap[,c(10:ncol(hap))])
-
-  # Output to list
-  hapReturn = list()
+  maf = apply(cbind(alleleA, alleleB), 1, min) / apply(cbind(alleleA, alleleB, het), 1, sum)
+  phet = het / apply(cbind(alleleA, alleleB, het), 1, sum)
+  present = as.numeric(as.character(present))
+  hap$stats = data.frame(alleleA,alleleB,het,missing,present,maf,phet)
   
-  if(any(output=="geno")) {
-    
-    # Convert to geno
-    hap01 = hap
-    hap01[,14:ncol(hap01)]=NA
+  if(geno==TRUE) {
     
     ## Define allele a and allele b
-    a = substring(hap$alleles,1,1)
-    a[hap$alleleA<hap$alleleB] = substring(hap$alleles,3,3)[hap$alleleA<hap$alleleB]
-    b = substring(hap$alleles,3,3)
-    b[hap$alleleA<hap$alleleB] = substring(hap$alleles,1,1)[hap$alleleA<hap$alleleB]
-    sum(a == b)
+    a[hap$stats$alleleA<hap$stats$alleleB] = substring(hap$header$alleles,3,3)[hap$stats$alleleA<hap$stats$alleleB]
+    b[hap$stats$alleleA<hap$stats$alleleB] = substring(hap$header$alleles,1,1)[hap$stats$alleleA<hap$stats$alleleB]
     
     ## Turn allele a and allele b into -1 and 1.  Het into 0
-    hap01[hap == a] = "-1"
-    hap01[hap == b] = "1"
-    hap01[hap == "H"] = "0"
+    hap01 = hap$calls
+    hap01 = NA
+    hap01[hap$calls == a] = "-1"
+    hap01[hap$calls == b] = "1"
+    hap01[hap$calls == "H"] = "0" # TODO change for IUPAC
     
-    ## Calculate A matrix using rrBLUP
-    geno = as.matrix(hap01[,14:ncol(hap01)])
+    #Convert to geno
+    geno = as.matrix(hap01)
     class(geno) = "numeric"
     geno = t(geno)
-    hapReturn$geno = geno
+    hap$geno = geno
   }
   
   if(graph) {
     par(mfrow=c(2,2))
     
     # Graph population parameters
-    if("maf"%in%colnames(hap)) {
-      hist(hap$maf, main="Minor Allele Frequency", xlab="MAF Value", ylab="Number of SNPs")
+    if("maf"%in%colnames(hap$stats)) {
+      hist(maf, main="Minor Allele Frequency", xlab="MAF Value", ylab="Number of SNPs")
     }
     
-    if("present"%in%colnames(hap)) {
-      hist(hap$present, main="% Present of Each SNP", xlab="Percent Present", ylab="Number of SNPs")
+    if("present"%in%colnames(hap$stats)) {
+      hist(present, main="% Present of Each SNP", xlab="Percent Present", ylab="Number of SNPs")
     }
     
-    if("het"%in%colnames(hap)) {
-      hist(hap$het, main="Number of Heterozygotes", xlab="Number of heterozygous per SNP loci", ylab="Number of SNPs")
+    if("het"%in%colnames(hap$stats)) {
+      hist(het, main="Number of Heterozygotes", xlab="Number of heterozygous per SNP loci", ylab="Number of SNPs")
     }
     
-    if("phet"%in%colnames(hap)) {
-      hist(hap$phet, main="Percent Heterozygous", xlab="Percent Heterozygous", ylab="Number of SNPs")
+    if("phet"%in%colnames(hap$stats)) {
+      hist(phet, main="Percent Heterozygous", xlab="Percent Heterozygous", ylab="Number of SNPs")
     }
     
     par(mfrow=c(1,1))
   }
   
-  #TODO use setClass to return an actual hap object
-  if(any(output=="hap")) {
-    hapReturn$hap = hap
-  }
-  
-  invisible(hapReturn)
+  invisible(hap)
 }
