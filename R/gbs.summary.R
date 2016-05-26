@@ -18,7 +18,7 @@
 #'
 #' @export
 
-filter.summary <- function(hap, geno=F, graph=F){
+filter.summary <- function(hap, geno=F, graph=F) {
   
   # TODO integrate IUPAC https://bytebucket.org/tasseladmin/tassel-5-source/wiki/docs/Tassel5UserGuide.pdf
   # TODO use proper hap format https://bitbucket.org/tasseladmin/tassel-5-source/wiki/UserManual/Load/Load
