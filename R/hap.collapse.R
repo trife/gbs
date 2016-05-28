@@ -19,15 +19,14 @@
 #' 
 #' @export
 
-hap.collapse <- function(hap,names,match){
+hap.collapse <- function(hap, names, match){
+  
+  if(class(hap)!="gbs") {
+    stop("hap argument is incorrect type. Use hap.read to create gbs object.")
+  }
   
   if(missing(names)) {
-    # Substring names by period in case columns were originally identically named (this will break if names contain periods)
-    names = unlist(lapply(strsplit(colnames(hap),".",fixed=TRUE), `[[`, 1))
-    
-    if(!any(duplicated(names))) {
-      stop("No duplicate names found in the hap object.")
-    }
+    stop("Names of lines to merge must be specified.")
   } else {
     for(i in 1:length(unique(names))) {
       count = length(colnames(hap)[grepl(names[i],colnames(hap),ignore.case = T)])
@@ -74,7 +73,7 @@ hap.collapse <- function(hap,names,match){
 
   } else {
     match <- NULL
-    hap.new = hap
+    hap.new <- hap
   }
   
   hap.out = matrix(ncol=length(unique(names)),nrow=nrow(hap.new))
@@ -97,7 +96,6 @@ hap.collapse <- function(hap,names,match){
   invisible(hap.orig)
 }
 
-# TODO make this more robust (alternative genotype calls)
 call.fnc = function(x) {
   count = sum(x)
   if(length(x) == 1) {
@@ -106,7 +104,7 @@ call.fnc = function(x) {
   if(length(x) == 2 && "N"%in%names(x)) {
     return(names(x)[names(x)!="N"])
   }
-  if("H"%in%names(x)) {
+  if("H"%in%names(x)) { # TODO change for IUPAC
     return("H")
   }
   return("H")
