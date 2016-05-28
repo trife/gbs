@@ -4,16 +4,14 @@
 \alias{hap.convert}
 \title{Convert hap objects to other formats.}
 \usage{
-hap.convert(hap, output, data.col = 14, write.file = FALSE, filename,
-  parents = NULL, encoding = c(-1, 0, 1), genotypes = c("A", "C", "G",
-  "T", "H"), missing = c("N", NA), pheno)
+hap.convert(hap, output, write.file = FALSE, filename, parents = NULL,
+  encoding = c(-1, 0, 1), genotypes = c("A", "C", "G", "T", "H"),
+  missing = c("N", NA), pheno)
 }
 \arguments{
 \item{hap}{The hap object to convert.}
 
 \item{output}{The target format.}
-
-\item{data.col}{The column corresponding to the first individual in the hap object.}
 
 \item{write.file}{Should the converted object be written?}
 

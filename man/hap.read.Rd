@@ -4,32 +4,23 @@
 \alias{hap.read}
 \title{Read hap file(s) or hap object.}
 \usage{
-hap.read(hap.obj, delim = "\\t", data.col, col.names = c("rs", "alleles",
-  "tagpos", "pos", "chrom"), genotypes = c(NA, "A", "T", "C", "G", "H", "N"))
+hap.read(hap.obj, delim = "\\t", data.col)
 }
 \arguments{
 \item{delim}{The delimter used in the file(s).}
 
-\item{data.col}{The column number for the first individual. This removes columns not required if specified.}
-
-\item{col.names}{The required columns for the gbs package to function correctly. See \code{Details}.}
-
-\item{genotypes}{A vector of marker calls that are used in the hap object.}
+\item{data.col}{The column number for the first line or individual.}
 
 \item{hap}{The hap object, file, or folder containing hap files.}
 }
 \value{
-A verified hap data frame.
+A gbs object.
 }
 \description{
 Read a file or data frame to create a hap object
 }
 \details{
-If a folder is passed to \code{hap.read}, \code{hap.join} is called to merge all files within the folder.
-
-\code{col.names} specifies the names of the columns corresponding to the tag, the alleles (e.g. A/G format), the position of the marker in the tag, the physical or genetic position, and the chromosome, in that order. All of these columns are required, even if blank. If columns are named differently, pass the names via the col.names option.
-
-\code{genotypes} allows for non-standard genotype calls to be included in the file. A basic data integrity checks to ensure that the resulting data frame only contains genotypic calls.
+If a folder is passed to \code{hap.read}, \code{hap.join} is called to merge all files within the folder and remove duplicates.
 }
 \examples{
 data(wheat)

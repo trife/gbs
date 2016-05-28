@@ -4,15 +4,12 @@
 \alias{allele.match}
 \title{Allele match.}
 \usage{
-allele.match(hap, result = c("count", "percent"), genotypes = c(NA, "A",
-  "C", "G", "T", "H", "N"), histgraph = F)
+allele.match(hap, result = c("count", "percent"), histgraph = F)
 }
 \arguments{
 \item{hap}{A matrix or data frame consisting consisting of rows (markers) and columns (individuals).}
 
 \item{result}{The values to be returned. Either the number of matched calls (\code{count}), \code{percent} identitiy, or both.}
-
-\item{genotypes}{Optional vector to include non-standard genotypes.}
 
 \item{histgraph}{Logical value to graph results.}
 }

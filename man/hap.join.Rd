@@ -14,6 +14,9 @@ hap.join(hap.dir, delim = "\\t")
 \description{
 Combines multiple hap files into a single hap object.
 }
+\details{
+For use with the old TASSEL 4 GBS pipeline that produced multiple files
+}
 \author{
 Trevor Rife, \email{trife@ksu.edu}
 }

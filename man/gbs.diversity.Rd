@@ -4,14 +4,12 @@
 \alias{gbs.diversity}
 \title{Determine GBS diversity.}
 \usage{
-gbs.diversity(hap, data.col = 14, maf.thresh = 0, graph = F)
+gbs.diversity(hap, clusters = NULL, maf.thresh = 0.05, graph = F)
 }
 \arguments{
 \item{hap}{The hap object to manipulate.}
 
-\item{data.col}{The column number with the first individual.}
-
-\item{maf.thresh}{A threshold for polymorphism.}
+\item{clusters}{A data frame with row names equal to individuals and a single column dictating which group each individual belongs to.}
 
 \item{graph}{Logical option to graph percent polymorphism.}
 }
