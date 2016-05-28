@@ -1,12 +1,13 @@
-#' Filter and summarize the hap object.
+#' summarize the gbs object.
 #' 
-#' Processes the hap object, calculates summary statistics, returns list with hap and/or geno objects, and graphs several summary statistics.
+#' Processes the gbs object, calculates allele statistics, returns allele stats, geno object, and graphs several statistics.
 #' 
 #' @author Trevor Rife, \email{trife@@ksu.edu}
 #' @author Jesse Poland, \email{jpoland@@ksu.edu}
 #' 
 #' @param hap The gbs object to be processed.
 #' @param geno A logical value that will convert the marker calls to a numeric geno format.
+#' @param encoding The numbers used to encode alleles (minor, het, major).
 #' @param graph A logical value that will output graphs for summary statistics (blank wells, maf, percent present, het, percent het).
 #' 
 #' @details
@@ -18,13 +19,12 @@
 #'
 #' @export
 
-filter.summary <- function(hap, geno=F, graph=F) {
+gbs.summary <- function(hap, geno=F, encoding=c(-1,0,1), graph=F) {
   
-  # TODO integrate IUPAC https://bytebucket.org/tasseladmin/tassel-5-source/wiki/docs/Tassel5UserGuide.pdf
-  # TODO use proper hap format https://bitbucket.org/tasseladmin/tassel-5-source/wiki/UserManual/Load/Load
-  
+  # TODO IUPAC https://bytebucket.org/tasseladmin/tassel-5-source/wiki/docs/Tassel5UserGuide.pdf
+
   if(class(hap)!="gbs") {
-    stop("hap object is incorrect type. Use hap.read to create gbs object.")
+    stop("hap argument is incorrect type. Use hap.read to create gbs object.")
   }
   
   # Check blank wells for data
@@ -37,7 +37,7 @@ filter.summary <- function(hap, geno=F, graph=F) {
     if(graph) {
       missing.blank = hap$calls[,grepl("BLANK",colnames(hap$calls),ignore.case=TRUE)]=="N"
       blank = as.matrix(apply(!missing.blank, 2, sum))
-      snptot=colSums(hap$calls[,data.col:ncol(hap$calls)]!="N")
+      snptot=colSums(hap$calls!="N")
       upper_limit = round(max(snptot)/1000)*1000
       hist(snptot, xlim=c(0,upper_limit), breaks=seq(0,upper_limit, by=1000), main="SNPs number per Sample", xlab="Number of SNPs", sub="Blank wells in red")
       hist(blank, col="red",xlim=c(0,upper_limit), breaks=seq(0,upper_limit, by=1000),add=TRUE )
@@ -51,6 +51,8 @@ filter.summary <- function(hap, geno=F, graph=F) {
   }
   
   # Calculate allele stats
+  print("Calculating statistics...")
+  
   a = substring(hap$header$alleles,1,1)
   b = substring(hap$header$alleles,3,3)
   
@@ -81,17 +83,24 @@ filter.summary <- function(hap, geno=F, graph=F) {
   hap$stats = data.frame(alleleA,alleleB,het,missing,present,maf,phet)
   
   if(geno==TRUE) {
+    print("Converting to geno...")
     
     ## Define allele a and allele b
     a[hap$stats$alleleA<hap$stats$alleleB] = substring(hap$header$alleles,3,3)[hap$stats$alleleA<hap$stats$alleleB]
     b[hap$stats$alleleA<hap$stats$alleleB] = substring(hap$header$alleles,1,1)[hap$stats$alleleA<hap$stats$alleleB]
     
-    ## Turn allele a and allele b into -1 and 1.  Het into 0
+    # Default: turn minor into -1, major into 1, het into 0
     hap01 = hap$calls
     hap01 = NA
-    hap01[hap$calls == a] = "-1"
-    hap01[hap$calls == b] = "1"
-    hap01[hap$calls == "H"] = "0" # TODO change for IUPAC
+    
+    print("Converting major allele...")
+    hap01[hap$calls == a] = encoding[1]
+    
+    print("Converting minor allele...")
+    hap01[hap$calls == b] = encoding[3]
+    
+    print("Converting het allele...")
+    hap01[hap$calls == "H"] = encoding[2] # TODO change for IUPAC
     
     #Convert to geno
     geno = as.matrix(hap01)
