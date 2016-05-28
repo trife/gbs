@@ -7,7 +7,6 @@
 #'
 #' @param hap A matrix or data frame consisting consisting of rows (markers) and columns (individuals).
 #' @param result The values to be returned. Either the number of matched calls (\code{count}), \code{percent} identitiy, or both.
-#' @param genotypes Optional vector to include non-standard genotypes.
 #' @param histgraph Logical value to graph results.
 #'
 #' @details
@@ -21,21 +20,12 @@
 #'
 #' @export
 
-allele.match <- function(hap, result=c("count","percent"), genotypes=c(NA,"A","C","G","T","H","N"), histgraph=F){
+allele.match <- function(hap, result=c("count","percent"), histgraph=F){
   if(!"count"%in%result && !"percent"%in%result) {
     stop("Result type must be specified.")
   }
 
   allele.match <- hap
-
-  # Check to ensure input matrix has correct format
-  genotypes <- c(genotypes,"a","c","g","t","h","n")
-
-  if(!all(apply(allele.match,MARGIN=2,function(x) x%in%genotypes))) {
-    uniqCalls <- unique(c(hap))
-    offCalls <- paste(shQuote(uniqCalls[!uniqCalls%in%genotypes]), collapse=", ")
-    stop("Following non-genotypes calls detected in the input matrix: ", offCalls, ". Edit the calls parameter to allow these.")
-  }
 
   cat('\n')
   message("Supplied dataset has ", nrow(hap), " SNPs and ", ncol(hap), " individuals.")
@@ -45,16 +35,16 @@ allele.match <- function(hap, result=c("count","percent"), genotypes=c(NA,"A","C
   nS <- ncol(allele.match)
   id <- matrix(NA, nrow=nS, ncol=nS)
 
-  pb = txtProgressBar(min = 0, max = nrow(id), initial = 0, style = 3)
+  pb <- txtProgressBar(min = 0, max = nrow(id), initial = 0, style = 3)
 
   for (i in 1:nrow(id)){
     id_pc <- rep(NA, length(i:nrow(id)))
     id_ct <- rep(NA, length(i:nrow(id)))
-    line1 = as.character(allele.match[,i])
+    line1 <- as.character(allele.match[,i])
     for (j in i:ncol(id)){
-      line2 = as.character(allele.match[,j])
-      shared = line1!="N" & line2!="N" & line1!="H" & line2!="H"
-      common = line1[shared] == line2[shared]
+      line2 <- as.character(allele.match[,j])
+      shared <- line1!="N" & line2!="N" & line1!="H" & line2!="H" # TODO redo for IUPAC
+      common <- line1[shared] == line2[shared]
       if(any(result == "percent")) {
         id_pc[j-i+1] <- sum(common, na.rm = T)/sum(shared, na.rm = T)
       }
