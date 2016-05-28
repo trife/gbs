@@ -11,7 +11,7 @@
 #' @param k The number of clusters for KNN imputation.
 #' @param maxiter The maximum number of iterations for RF and SVD imputation.
 #' @param n.core The number of cores to use for RF imputation.
-#' @param ... Aadditional arguments for rrBLUP::A.mat, randomForest::na.roughfix, missForest::missForest
+#' @param ... Additional arguments for rrBLUP::A.mat, randomForest::na.roughfix, missForest::missForest
 #' 
 #' @details
 #' @section Methods:
@@ -29,20 +29,17 @@
 #'
 #' @export
 
-hap.impute <- function(geno, method, k=4, maxiter=10, n.core=1, ...){
+geno.impute <- function(geno, method, k=4, maxiter=10, n.core=1, ...){
   
-  hap.obj = geno
   method = toupper(method)
   
   all.methods = c("MEAN","EM","RF","MEDIAN","KNN","SVD")
   
-  if(!any(method%in%all.methods)) {
-    stop("Method not specified.")
+  if(!any(method%in%all.methods) || missing(method)) {
+    stop("Method missing or incorrectly specified.")
   }
   
-  encoding <- c(NA,1,0,-1)
-  
-  if(!all(apply(hap.obj,MARGIN=2,function(x) x%in%encoding))) {
+  if(!any(apply(geno,MARGIN=2,is.numeric()))) {
     stop("Geno object contains non-numeric elements.")
   }
   
@@ -55,44 +52,41 @@ hap.impute <- function(geno, method, k=4, maxiter=10, n.core=1, ...){
   
   data = list()
 
-  if(any(method=="MEAN")){
-    print("Imputing using marker mean...")
-    data$mean = rrBLUP::A.mat(hap.obj, impute.method="mean", n.core=n.core, return.imputed=TRUE, ...)$imputed
+  if(any(method=="MEAN")) {
+    print("Imputing markers using mean...")
+    data$mean = rrBLUP::A.mat(geno, impute.method="mean", n.core=n.core, return.imputed=TRUE, ...)$imputed
   }
   
   if(any(method=="MEDIAN")) {
-    print("Imputing using marker median...")
-    data$median = randomForest::na.roughfix(hap.obj)
+    print("Imputing markers using median...")
+    data$median = randomForest::na.roughfix(geno)
   }
   
-  if(any(method=="EM")){
-    print("Imputing using EM...")
-    data$EM = rrBLUP::A.mat(hap.obj, impute.method="EM", n.core=n.core, return.imputed=TRUE, ...)$imputed
+  if(any(method=="EM")) {
+    print("Imputing markers using EM...")
+    data$EM = rrBLUP::A.mat(geno, impute.method="EM", n.core=n.core, return.imputed=TRUE, ...)$imputed
   }
   
-  if(any(method=="RF")){
-    print("Imputing using RF...")
+  if(any(method=="RF")) {
+    print("Imputing markers using RF...")
     cl = parallel::makeCluster(n.core)
     doParallel::registerDoParallel(cl)
-    data$RF = missForest::missForest(hap.obj, parallelize=parallelize, maxiter=maxiter, ...)$ximp
+    data$RF = missForest::missForest(geno, parallelize=parallelize, maxiter=maxiter, ...)$ximp
     parallel::stopCluster(cl)
   }
   
-  if(any(method=="KNN")){
-    print("Imputing using marker KNN...")
-    data$KNN = kNNI(x=hap.obj, k=k)$x
+  if(any(method=="KNN")) {
+    print("Imputing markers using KNN...")
+    data$KNN = kNNI(x=geno, k=k)$x
   }
 
-  if(any(method=="SVD")){
-    print("Imputing using marker SVD...")
-    data$SVD = bcv::impute.svd(x=hap.obj, maxiter=maxiter, ...)$x
+  if(any(method=="SVD")) {
+    print("Imputing markers using SVD...")
+    data$SVD = bcv::impute.svd(x=geno, maxiter=maxiter, ...)$x
   }
-  
-  print("DONE")
   
   invisible(data)
 }
-
 
 kNNI <- function (x, k, verbose = F, x.dist=NULL) {
   x= t(x)
