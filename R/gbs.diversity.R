@@ -6,8 +6,8 @@
 #' @author Trevor Rife, \email{trife@@ksu.edu}
 #'
 #' @param hap The hap object to manipulate.
-#' @param data.col The column number with the first individual.
-#' @param maf.thresh A threshold for polymorphism.
+#' @param clusters A data frame with row names equal to individuals and a single column dictating which group each individual belongs to.
+#' @param maf.thresh
 #' @param graph Logical option to graph percent polymorphism.
 #'
 #' @details
@@ -22,57 +22,48 @@
 #'
 #' @export
 
-gbs.diversity <- function(hap, data.col=14, maf.thresh=0, graph=F){
-
+gbs.diversity <- function(hap, clusters=NULL, maf.thresh=0.05, graph=F){
+  
+  if(class(hap)!="gbs") {
+    stop("hap argument is incorrect type. Use hap.read to create gbs object.")
+  }
+  
   output = list()
   
-  if(!"alleles"%in%colnames(hap)) {
-    stop("Alleles column (alleles) missing from hap object")
-  }
+  a = substr(hap$header$alleles,1,1)
+  b = substr(hap$header$alleles,3,3)
   
-  if(!"alleleA"%in%colnames(hap)) {
-    stop("B allele column missing from hap object. Run filter.summary.")
-  }
-  
-  if(!"alleleB"%in%colnames(hap)) {
-    stop("A allele column missing from hap object. Run filter.summary.")
-  }
-  
-  if(!"het"%in%colnames(hap)) {
-    stop("het column missing from hap object. Run filter.summary.")
-  }
-  
-  tHap = hap[,data.col:ncol(hap)]
-  
-  a = substr(hap$alleles,1,1)
-  b = substr(hap$alleles,3,3)
-
   # Recalculate allele counts
-  tHap$missing = rowSums(tHap == "N", na.rm = T)
-  tHap$het = rowSums(tHap == "H", na.rm = T)
-  tHap$alleleA = rowSums(tHap == a, na.rm = T)*2 + tHap$het
-  tHap$alleleB = rowSums(tHap == b, na.rm = T)*2 + tHap$het
-
-  # minor allele frequency
-  tHap$maf = apply(cbind(tHap$alleleA, tHap$alleleB), 1, min) / apply(cbind(tHap$alleleA, tHap$alleleB), 1, sum)
-
-  # proportion of polymorphism
+  missing = rowSums(hap$calls == "N", na.rm = T) # TODO change for IUPAC
+  het = rowSums(hap$calls == "H", na.rm = T) # TODO change for IUPAC
+  alleleA = rowSums(hap$calls == a, na.rm = T)*2 + het
+  alleleB = rowSums(hap$calls == b, na.rm = T)*2 + het
+  
+  # Minor allele frequency
+  maf = apply(cbind(alleleA, alleleB), 1, min) / apply(cbind(alleleA, alleleB), 1, sum)
+  
+  # Graph proportion of polymorphism
   if(graph) {
     par(mfrow=c(1,2))
-    polyMarkers = sum(tHap$maf >= maf.thresh)
-    totalMarkers = nrow(tHap)
+    polyMarkers = sum(maf >= maf.thresh)
+    totalMarkers = nrow(hap$calls)
     cat('Number of polymorphic sites:', polyMarkers,"\n")
     cat('Proportion of polymorphic sites (P):', polyMarkers / totalMarkers,"\n")
     barplot(c(polyMarkers, totalMarkers-polyMarkers), xlim = c(0,5), col = c('lightgray','black'), legend.text = c('Polymorphic','Monomorphic'), ylab = "# markers")
     pie(c(polyMarkers, totalMarkers-polyMarkers), labels = c('Polymorphic \nmarkers','Monomorphic \nmarkers'))
   }
-
+  
   # Nei's diversity index
-  nei = mean(1-(tHap$maf^2)-(1-tHap$maf)^2, na.rm = T)
+  nei = mean(1-(maf^2)-(1-maf)^2, na.rm = T)
   cat("Nei's diversity index:", nei,"\n")
   output$nei = nei
-
+  
   # TODO FST
+  if(is.null(clusters)) {
+    cat("Clusters not specified; unable to calculate FST.")
+  } else {
+    output$fst = NULL
+  }
   
   invisible(output)
 }

@@ -7,7 +7,6 @@
 #'
 #' @param hap The hap object to convert.
 #' @param output The target format.
-#' @param data.col The column corresponding to the first individual in the hap object.
 #' @param write.file Should the converted object be written?
 #' @param filename A name to use as the base for the output file.
 #' @param parents Two columns or names of the parents being used to convert to RQTL and AB format.
@@ -34,12 +33,14 @@
 #'
 #' @export
 
-hap.convert <- function(hap, output, data.col = 14, write.file=FALSE, filename, parents=NULL, encoding=c(-1,0,1), genotypes=c("A","C","G","T","H"), missing=c("N",NA), pheno) {
+hap.convert <- function(hap, output, write.file=FALSE, filename, parents=NULL, encoding=c(-1,0,1), genotypes=c("A","C","G","T","H"), missing=c("N",NA), pheno) {
   
-  # TODO add: PLINK (http://pngu.mgh.harvard.edu/~purcell/plink/data.shtml#bed)
-  # TODO add: CERVUS: three files (list possible parents, list of all progeny, genotype file)
-  # TODO add: MEGA
-  # TODO add: JOINMAP
+  # TODO add: PLINK (http://pngu.mgh.harvard.edu/~purcell/plink/data.shtml#bed), CERVUS (possible parents, progeny, genotypes), MEGA, JOINMAP
+  # TODO IUPAC genotypes
+  
+  if(class(hap)!="gbs") {
+    stop("hap argument is incorrect type. Use hap.read to create gbs object.")
+  }
   
   if(missing(output)) {
     stop("No export format specified.")
@@ -51,11 +52,11 @@ hap.convert <- function(hap, output, data.col = 14, write.file=FALSE, filename, 
   
   RQTL.F = function(...) {
     # Data checks
-    if(length(unique(hap$chrom))<=1) {
+    if(length(unique(hap$header$chrom))<=1) {
       stop("Only one chromosome detected. Fix chrom and pos columns.")
     }
     
-    if(!"chrom"%in%colnames(hap) | !"pos"%in%colnames(hap)) {
+    if(!"chrom"%in%colnames(hap$header) | !"pos"%in%colnames(hap$header)) {
       stop("chrom or pos column missing.")
     }
     
@@ -116,15 +117,8 @@ hap.convert <- function(hap, output, data.col = 14, write.file=FALSE, filename, 
   }
   
   STRUCTURE.F = function(...) {
-    strfile = hap
-    
-    # Remove duplicate tags
-    if(!"rsOrig"%in%colnames(strfile)) {
-      strfile = strfile[!duplicated(strfile$rsOrig),]
-    }
-    
-    strfile = as.matrix(strfile[,data.col:ncol(strfile)])
-    
+    strfile = as.matrix(hap$calls)
+
     # Transpose the strfile for STRUCTURE input
     strfile <- t(strfile)
     
@@ -152,8 +146,6 @@ hap.convert <- function(hap, output, data.col = 14, write.file=FALSE, filename, 
   }
   
   FSTRUCTURE.F = function(...) {
-    # TODO not 100% that this is accurate
-
     hap.str = STRUCTURE.F()
     
     # Add 5 filler columns of empty data
@@ -167,31 +159,32 @@ hap.convert <- function(hap, output, data.col = 14, write.file=FALSE, filename, 
   }
   
   AB.F = function(...) {
-    check.parents(parents,hap)
+    check.parents(parents,hap$calls)
     
     # If user specifies column number instead of names
     if(is.numeric(parents)) {
       p1col = parents[1]
       p2col = parents[2]
       
-      print(paste("Using ",colnames(hap)[parents[1]]," and ",colnames(hap)[parents[2]]," as parents.",sep=""))
+      print(paste("Using ",colnames(hap$calls)[parents[1]]," and ",colnames(hap$calls)[parents[2]]," as parents.",sep=""))
     } else {
-      p1col = which(grepl(parents[1],colnames(hap),ignore.case=T))
-      p2col = which(grepl(parents[2],colnames(hap),ignore.case=T))
+      p1col = which(grepl(parents[1],colnames(hap$calls),ignore.case=T))
+      p2col = which(grepl(parents[2],colnames(hap$calls),ignore.case=T))
     }
     
     ## Remove markers that are hets, identical, or missing in both parents
     print("Removing markers that are het, identical, or missing in both parents...")
     
-    hap.clean = hap[hap[,p1col]!="H" & hap[,p2col]!="H",]
+    hap.clean = hap$calls[hap$calls[,p1col]!="H" & hap$calls[,p2col]!="H",]
     hap.clean = hap.clean[hap.clean[,p1col]!="N" & hap.clean[,p2col]!="N",]
     hap.clean = hap.clean[(hap.clean[,p1col]!=hap.clean[,p2col]),]
     
-    print(paste("Removed ",nrow(hap)-nrow(hap.clean)," markers.",sep=""))
+    print(paste("Removed ",nrow(hap$calls)-nrow(hap.clean)," markers.",sep=""))
     
     ## Identify two alleles for each marker
-    if(!"alleles"%in%colnames(hap.clean)) {
-      alleles = derive.alleles(hap.clean[,data.col:ncol(hap.clean)])
+    # TODO removing columns above throws this off, reindex
+    if(!"alleles"%in%colnames(hap$header)) {
+      alleles = derive.alleles(hap.clean)
       allele1 = alleles$allele1
       allele2 = alleles$allele2
     } else {
@@ -208,13 +201,13 @@ hap.convert <- function(hap, output, data.col = 14, write.file=FALSE, filename, 
     print("Imputing parental genotypes when only one present...")
     
     for(i in 1:nrow(hap.ab)){
-      if (hap.ab[,p1col][i] == "N") {
+      if (hap.ab[,p1col][i] == "N") { #TODO change for missing
         if (hap.ab[,p2col][i] == allele1[i]) {
           hap.ab[,p1col][i] = allele2[i]
         } else if (hap.ab[,p2col][i] == allele2[i]) {
           hap.ab[,p2col][i] = allele1[i]
         }
-      } else if (hap.ab[,p2col][i] == "N") {
+      } else if (hap.ab[,p2col][i] == "N") { #TODO change for missing
         if (hap.ab[,p1col][i] == allele1[i]) {
           hap.ab[,p2col][i] = allele2[i]
         } else if (hap.ab[,p1col][i] == allele2[i]) {
@@ -237,7 +230,9 @@ hap.convert <- function(hap, output, data.col = 14, write.file=FALSE, filename, 
   }
   
   GAPIT.F = function(...) {
-    gapit.out = cbind(rs = hap$rs, alleles = hap$alleles, chrom = hap$chrom, pos = hap$pos, strand=NA, assembly=NA, center=NA, alleleA=hap$alleleA, alleleB = hap$alleleB, het = hap$het, maf=hap$maf, hap[,data.col:ncol(hap)])
+    # TODO match with real column names, check col count
+    
+    gapit.out = cbind(hap$header,hap$calls)
     
     if(write.file) {
       write.converted(hap.gap, file.name, "GAPIT", ".txt", sep="\t", row.names=F)
@@ -247,7 +242,7 @@ hap.convert <- function(hap, output, data.col = 14, write.file=FALSE, filename, 
   }
   
   DNASP.F = function(...) {
-    hapmap3 = as.matrix(hap[,data.col:ncol(hap)])
+    hapmap3 = as.matrix(hap$calls)
     
     # Duplicate calls and append _A and _B to column names
     hapmap3 = cbind(hapmap3, hapmap3)
@@ -256,7 +251,7 @@ hap.convert <- function(hap, output, data.col = 14, write.file=FALSE, filename, 
     hapmap3cols = c(hapmap3cols_A, hapmap3cols_B)
     colnames(hapmap3) = hapmap3cols
 
-    hapmap3[hapmap3=="H"]="N"
+    hapmap3[hapmap3=="H"]="N" # TODO change for IPUAC
 
     hapmap3 = t(hapmap3)
     hapmap3 = cbind(rep(1:(nrow(hapmap3)/2), 2), hapmap3)
@@ -265,7 +260,7 @@ hap.convert <- function(hap, output, data.col = 14, write.file=FALSE, filename, 
     hapmap3 = hapmap3[odr,]
     hapmap3 = hapmap3[,-1]
     hapmap3 = t(hapmap3)
-    hapmap3cols = cbind(rsID=paste("rs", hap$rs, sep=""), position=hap$pos)
+    hapmap3cols = cbind(rsID=hap$header$rs, position=hap$header$pos)
     hapmap3 = cbind(hapmap3cols, hapmap3)
     
     if(write.file) {
@@ -278,10 +273,9 @@ hap.convert <- function(hap, output, data.col = 14, write.file=FALSE, filename, 
   PHYLIP.F = function(...) {
     # TODO check for illegal characters in names: parentheses, brackets, colon, semicolon, commas
     
-    phylip = as.matrix(hap[,data.col:ncol(hap)])
+    phylip = as.matrix(hap$calls)
     phylip = t(phylip[1:nrow(phylip),])
-    #phylip = phylip[!duplicated(rownames(phylip)),] TODO is this needed?
-    
+
     phynames = 1:nrow(phylip)
     phynames = paste(phynames,rownames(phylip),sep="_")
     
@@ -291,7 +285,7 @@ hap.convert <- function(hap, output, data.col = 14, write.file=FALSE, filename, 
     
     rownames(phylip) = phynames
     
-    phylip[phylip=="H"]="N"
+    phylip[phylip=="H"]="N" # TODO change for IUPAC
     
     phylip = rbind(rep(NA,ncol(phylip)),phylip)
     
@@ -306,29 +300,34 @@ hap.convert <- function(hap, output, data.col = 14, write.file=FALSE, filename, 
   }
   
   GENO.F = function(...) {
-    hap01 = hap
-    hap01[,data.col:ncol(hap01)]=NA
+    hap01 = hap$calls
+    hap01 = NA
     
     ## Define allele a and allele b
     
-    if(!"alleles"%in%colnames(hap)) {
-      alleles = derive.alleles(hap[,data.col:ncol(hap)])
+    if(!"alleles"%in%colnames(hap$header)) {
+      alleles = derive.alleles(hap$calls)
       a = alleles$allele1
       b = alleles$allele2
     } else {
-      a = substring(hap$alleles,1,1)
-      b = substring(hap$alleles,3,3)
+      a = substring(hap$header$alleles,1,1)
+      b = substring(hap$header$alleles,3,3)
     }
     
-    a[hap$alleleA<hap$alleleB] = substring(hap$alleles,3,3)[hap$alleleA<hap$alleleB]
-    b[hap$alleleA<hap$alleleB] = substring(hap$alleles,1,1)[hap$alleleA<hap$alleleB]
+    a[hap$header$alleleA<hap$header$alleleB] = substring(hap$header$alleles,3,3)[hap$header$alleleA<hap$header$alleleB]
+    b[hap$header$alleleA<hap$header$alleleB] = substring(hap$header$alleles,1,1)[hap$header$alleleA<hap$header$alleleB]
     
-    # Default: turn minor into -1, allele major into 1, het into 0
-    hap01[hap == a] = encoding[1]
-    hap01[hap == b] = encoding[3]
-    hap01[hap == "H"] = encoding[2]
+    # Default: turn minor into -1, major into 1, het into 0
+    print("Converting major allele...")
+    hap01[hap$calls == a] = encoding[1]
     
-    geno = as.matrix(hap01[,data.col:ncol(hap01)])
+    print("Converting minor allele...")
+    hap01[hap$calls == b] = encoding[3]
+    
+    print("Converting het allele...")
+    hap01[hap$calls == "H"] = encoding[2] # TODO change for IUPAC
+    
+    geno = as.matrix(hap01)
     class(geno) = "numeric"
     geno = t(geno)
     
@@ -401,7 +400,7 @@ write.converted <- function(obj, fname, method, ext, ...) {
 
 derive.alleles <- function(obj) {
   all.alleles = apply(obj[,data.col:ncol(obj)], MARGIN = 1,function(x) names(table(unlist(lapply(x,as.character)))))
-  all.alleles = lapply(all.alleles,function(x) x[!x%in%c("H","N")]) # TODO add option for ignorable genotypes
+  all.alleles = lapply(all.alleles,function(x) x[!x%in%c("H","N")]) # TODO add option for ignorable genotypes, IUPAC
   
   allele1 = lapply(all.alleles, `[[`, 1)
   allele1 = unlist(allele1)
