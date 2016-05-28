@@ -11,7 +11,7 @@
 #' @details
 #' If a folder is passed to \code{hap.read}, \code{hap.join} is called to merge all files within the folder and remove duplicates.
 #'
-#' @return A verified hap data frame.
+#' @return A gbs object.
 #'
 #' @examples
 #' data(wheat)
@@ -35,7 +35,7 @@ hap.read <- function(hap.obj, delim="\t", data.col) {
     }
     
     if(!file.info(hap.obj)$isdir) {
-      hap <- data.table::fread(input=hap, sep=delim, check.names=FALSE, header=TRUE, data.table = F, strip.white=T)
+      hap <- data.table::fread(input=hap.obj, sep=delim, check.names=FALSE, header=TRUE, data.table = F, strip.white=T)
     }
   } else {
     hap = hap.obj
