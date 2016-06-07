@@ -19,11 +19,16 @@
 #'
 #' @examples
 #' data(wheat)
-#' gbs.dendro(geno,phenotypes,taxa="line",tips="type",leafs="group",type="fan",edge.width=2)
+#' gbs.dendro(hap$geno,phenotypes,taxa="line",tips="type",leafs="group",type="fan",edge.width=2)
 #'
 #' @export
 
 gbs.dendro <- function(geno, df, taxa, tips, leafs, tipColors, leafColors, ...) {
+  
+  # Geno data integrity
+  if (!is.numeric(geno)) {
+    stop("Geno must be numeric matrix.")
+  }
   
   # Convert hclust object to phylo object
   hc <- stats::hclust(dist(geno))
@@ -33,11 +38,11 @@ gbs.dendro <- function(geno, df, taxa, tips, leafs, tipColors, leafColors, ...) 
   len.tips <- length(hc2$tip.label)
   len.taxa <- length(df[[taxa]])
   
-  if (len.tips != len.taxa | sum(hc2$tip.label %in% df[[taxa]]) != len.taxa) {
+  if (len.tips != len.taxa || sum(hc2$tip.label %in% df[[taxa]]) != len.taxa) {
     stop("Missing taxa in tree or data frame")
   }
   
-  # color tips
+  # Color tips
   tip.color <- cbind(hc2$tip.label, 'black')
   
   if(missing(tips)) {
@@ -47,11 +52,11 @@ gbs.dendro <- function(geno, df, taxa, tips, leafs, tipColors, leafColors, ...) 
       tipColors = rainbow(length(levels(df[[tips]])))
     }
     
-    # match order of the data frame matches the tips
+    # Match order of the data frame matches the tips
     order <- match(hc2$tip.label, df[,taxa])
     ordered.trait <- df[tips][order,]
     
-    # cut up the tip trait and assign a list of colors
+    # Cut up the tip trait and assign a list of colors
     levs <- levels(ordered.trait)
     tip.color <- rep("black", times = length(df[[taxa]]))
     tip.color <- tipColors[match(ordered.trait, levs)]
@@ -77,11 +82,11 @@ gbs.dendro <- function(geno, df, taxa, tips, leafs, tipColors, leafColors, ...) 
       leafColors = rainbow(length(levels(df[[leafs]])))
     }
     
-    # match the order of the data frame matches the leafs
+    # Match the order of the data frame matches the leafs
     order <- match(edgeCols[edgeCols[,1]!="N",][,1], df[,taxa])
     ordered.trait <- df[leafs][order,]
     
-    # cut up the leaf trait and assign a list of colors
+    # Cut up the leaf trait and assign a list of colors
     levs <- levels(ordered.trait)
     edge.color <- rep("black", times = length(df[[taxa]]))
     edge.color <- leafColors[match(ordered.trait, levs)]
@@ -89,6 +94,6 @@ gbs.dendro <- function(geno, df, taxa, tips, leafs, tipColors, leafColors, ...) 
     edgeCols[edgeCols[,1]!="N",][,2]=edge.color
   }
 
-  # plot
+  # Plot
   ape::plot.phylo(hc2, tip.color = tip.color, edge.color = edgeCols[,2], ...)
 }
