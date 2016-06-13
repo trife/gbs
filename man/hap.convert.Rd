@@ -2,28 +2,30 @@
 % Please edit documentation in R/hap.convert.R
 \name{hap.convert}
 \alias{hap.convert}
-\title{Convert hap objects to other formats.}
+\title{Convert gbs objects to other formats.}
 \usage{
 hap.convert(hap, output, write.file = FALSE, filename, parents = NULL,
-  encoding = c(-1, 0, 1), genotypes = c("A", "C", "G", "T", "H"),
+  encoding = c(-1, 0, 1), genotypes = c("A", "C", "G", "T"), het = "H",
   missing = c("N", NA), pheno)
 }
 \arguments{
-\item{hap}{The hap object to convert.}
+\item{hap}{The gbs object to convert.}
 
-\item{output}{The target format.}
+\item{output}{The target format(s).}
 
 \item{write.file}{Should the converted object be written?}
 
 \item{filename}{A name to use as the base for the output file.}
 
-\item{parents}{Two columns or names of the parents being used to convert to RQTL and AB format.}
+\item{parents}{Two columns or names of the parents for RQTL and AB format.}
 
-\item{encoding}{The numbers used to encode alleles (minor, het, major).}
+\item{encoding}{The numbers that should be used to numerically encode alleles (minor, het, major).}
 
-\item{genotypes}{A vector of symbols to denote genotype calls in the hap object.}
+\item{genotypes}{A vector of symbols to denote genotype calls in the gbs object.}
 
-\item{missing}{A vector of symbols used to denote missing data in the hap object.}
+\item{het}{A vector of symbols to denote heterozygous calls in the gbs object.}
+
+\item{missing}{A vector of symbols used to denote missing data in the gbs object.}
 
 \item{pheno}{A data frmae of phenotypes to include in R/qtl output. See details.}
 }
@@ -31,21 +33,20 @@ hap.convert(hap, output, write.file = FALSE, filename, parents = NULL,
 
 }
 \description{
-Takes in a hap objects and converts it to formats required for other analysis programs and packages.
+Takes in a gbs object and converts it to formats suitable for other analysis programs and packages.
 }
 \section{Output}{
 
 AB, GENO, RQTL, GAPIT, STRUCTURE, FSTRUCTURE, DNASP, PHYLIP
 
 \subsection{R/qtl}{
-If the a pheno data frame is included, The first column should contain the same names that are int he hap object and each other column should be a phenotype.
+If the a pheno data frame is included, The first column should contain the same names as the individials in the gbs object and every subsequent column should correspond to a phenotype.
 }
 }
 \examples{
 data(dh)
 dh = hap.collapse(dh,names=c("TIGER","DANBY"),match=0.9)
-dh = filter.summary(dh,project="wheat",output="hap")$hap
-dh.ab = hap.convert(dh,output="AB",data.col=13,parents=c("tiger","danby"))
+dh.ab = hap.convert(dh,output="AB",parents=c("tiger","danby"))
 
 }
 \author{

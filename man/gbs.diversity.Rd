@@ -2,31 +2,34 @@
 % Please edit documentation in R/gbs.diversity.R
 \name{gbs.diversity}
 \alias{gbs.diversity}
-\title{Determine GBS diversity.}
+\title{GBS diversity.}
 \usage{
-gbs.diversity(hap, clusters = NULL, maf.thresh = 0.05, graph = F)
+gbs.diversity(hap, clusters = NULL, maf.thresh = 0.05, graph = F,
+  het = "H", missing = "N")
 }
 \arguments{
-\item{hap}{The hap object to manipulate.}
+\item{hap}{The gbs object to manipulate.}
 
 \item{clusters}{A data frame with row names equal to individuals and a single column dictating which group each individual belongs to.}
 
-\item{graph}{Logical option to graph percent polymorphism.}
+\item{graph}{A logical option to graph the percent polymorphism.}
+
+\item{het}{The symbol(s) used for heterozygous calls.}
+
+\item{missing}{The symbol(s) used for missing calls.}
 }
 \value{
 A list containing the Nei's genetic diversity and FST of the individuals
 }
 \description{
-Calculates different measures of diveristy in a hap object.
+Calculates different measures of diveristy in a gbs object.
 }
 \details{
 
 }
 \examples{
 data(wheat)
-hap = hap.read(wheat)
-hap = filter.summary(hap,project="wheat",output="hap")$hap
-gbs.diversity(hap,data.col=14,graph=T)
+gbs.diversity(hap,graph=T)
 
 }
 \author{

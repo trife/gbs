@@ -4,7 +4,7 @@
 \alias{allele.match}
 \title{Allele match.}
 \usage{
-allele.match(hap, result = c("count", "percent"), histgraph = F)
+allele.match(hap, result = c("count", "percent"), graph = F)
 }
 \arguments{
 \item{hap}{A matrix or data frame consisting consisting of rows (markers) and columns (individuals).}
@@ -17,14 +17,14 @@ allele.match(hap, result = c("count", "percent"), histgraph = F)
 A matrix with upper triangle equal to the percent identity of the individuals and lower triangle equal to the proportion of alleles that match between two individuals.
 }
 \description{
-Compares alleles across different individuals in a hap object.
+Compares alleles across different individuals in a gbs object.
 }
 \details{
 This function ignores missing data and heterozygous calls.
 }
 \examples{
 data(wheat)
-wheat.match = allele.match(wheat[,6:ncol(wheat)],histgraph=T)
+percId = allele.match(hap,graph=T)
 
 }
 \author{

@@ -2,7 +2,7 @@
 % Please edit documentation in R/hap.read.R
 \name{hap.read}
 \alias{hap.read}
-\title{Read hap file(s) or hap object.}
+\title{Read hap file(s) or data frame.}
 \usage{
 hap.read(hap.obj, delim = "\\t", data.col)
 }
@@ -11,20 +11,20 @@ hap.read(hap.obj, delim = "\\t", data.col)
 
 \item{data.col}{The column number for the first line or individual.}
 
-\item{hap}{The hap object, file, or folder containing hap files.}
+\item{hap}{A data frame, file, or folder containing hap files.}
 }
 \value{
 A gbs object.
 }
 \description{
-Read a file or data frame to create a hap object
+Read a file or data frame to create a gbs object
 }
 \details{
-If a folder is passed to \code{hap.read}, \code{hap.join} is called to merge all files within the folder and remove duplicates.
+This function creates a gbs object from hap files or a data frame. The gbs object contains a data frame representing the header columns, a data frame representing the genotypic calls, an empty geno data frame, and an empty stats data frame. Both the geno and stats data frames are created with the \code{gbs.summary} function. If a folder is passed to \code{hap.read}, \code{hap.join} is called to merge all files within the folder and remove duplicate tags.
 }
 \examples{
 data(wheat)
-hap = hap.read(wheat)
+hap = hap.read(raw.hap)
 
 }
 \author{

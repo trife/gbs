@@ -4,23 +4,25 @@
 \alias{hap.collapse}
 \title{Merge duplicate individuals.}
 \usage{
-hap.collapse(hap, names, match)
+hap.collapse(hap, names, match, het = "H")
 }
 \arguments{
-\item{hap}{A hap object consisting only of individuals (columns) and markers (rows).}
+\item{hap}{A gbs object consisting only of individuals (columns) and markers (rows).}
 
-\item{names}{A list of individual(s) to merge.}
+\item{names}{A list of the base names of the individual(s) to merge.}
 
 \item{match}{The percent matching individuals must be before merging.}
+
+\item{het}{The symbol(s) used for heterozygous calls.}
 }
 \value{
-The original hap object with duplicate individuals merged.
+A gbs object with duplicate individuals merged.
 }
 \description{
-Combines multiple individuals that have the same name (e.g. ind.1,ind.2,...,ind.n) in a hap object.
+Combines multiple individuals that have the same name (e.g. ind.1,ind.2,...,ind.n) in a gbs object.
 }
 \details{
-
+This function merges the calls from duplicate individuals. If a call for a given marker does not match between individuals, it is called heterozygous. All heterozygous markers are stored as "H".
 }
 \examples{
 data(dh)

@@ -31,7 +31,7 @@ This function allows for the independent coloring of both the terminal leafs of 
 }
 \examples{
 data(wheat)
-gbs.dendro(geno,phenotypes,taxa="line",tips="type",leafs="group",type="fan",edge.width=2)
+gbs.dendro(hap$geno,phenotypes,taxa="line",tips="type",leafs="group",type="fan",edge.width=2)
 
 }
 \author{
