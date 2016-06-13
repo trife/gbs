@@ -16,11 +16,12 @@
 #'
 #' @examples
 #' data(wheat)
-#' wheat.match = allele.match(wheat[,6:ncol(wheat)],histgraph=T)
+#' percId = allele.match(hap$calls,graph=T)
 #'
 #' @export
 
-allele.match <- function(hap, result=c("count","percent"), histgraph=F){
+allele.match <- function(hap, result=c("count","percent"), graph=F) {
+  
   if(!"count"%in%result && !"percent"%in%result) {
     stop("Result type must be specified.")
   }
@@ -62,7 +63,7 @@ allele.match <- function(hap, result=c("count","percent"), histgraph=F){
   rownames(id)=colnames(allele.match)
   colnames(id)=colnames(allele.match)
 
-  if(histgraph) {
+  if(graph) {
     par(mfrow=c(1,2))
     
     if(any(result == "percent")) {

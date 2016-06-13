@@ -6,83 +6,81 @@
 #' @author Trevor Rife, \email{trife@@ksu.edu}
 #' @author Jessica Rutkoski, \email{jer263@cornell.edu}
 #' 
-#' @param geno The geno object to impute. Each row is an individual and each column is a marker. Genotypic data is expected to be encoded as \code{-1,0,1}.
+#' @param geno The geno object to impute. Each row is an individual and each column is a marker. Genotypic data is expected to be encoded as \code{-1,0,1} for minor, het, and major, respectively.
 #' @param method The method to use for imputation. See details.
 #' @param k The number of clusters for KNN imputation.
 #' @param maxiter The maximum number of iterations for RF and SVD imputation.
-#' @param n.core The number of cores to use for RF imputation.
-#' @param ... Additional arguments for rrBLUP::A.mat, randomForest::na.roughfix, missForest::missForest
+#' @param n.core The number of cores to use for RF imputation. This option is not available on Windows.
+#' @param ... Additional arguments for rrBLUP::A.mat, randomForest::na.roughfix, and missForest::missForest
 #' 
 #' @details
 #' @section Methods:
 #' Markers can be imputed using mean, median, EM, Random Forest (RF), K Nearest Neighbors (KNN), and Singular Value Decomposition (SVD)
 #' 
-#' @return
+#' @return A list with data frames corresponding to the methods used for imputation.
 #'
 #' @examples
 #' data(wheat)
-#' hap = hap.read(wheat)
-#' geno = filter.summary(hap,project="wheat",output=c("geno","hap"))$geno
-#' geno.impute = hap.impute(geno,c("MEAN","EM"))
-#' head(geno.impute$mean)
-#' head(geno.impute$EM)
+#' impute = geno.impute(hap$geno,c("mean","EM"))
+#' impute$mean[1:10,1:20]
+#' impute$EM[1:10,1:20]
 #'
 #' @export
 
 geno.impute <- function(geno, method, k=4, maxiter=10, n.core=1, ...){
   
-  method = toupper(method)
+  method <- toupper(method)
   
-  all.methods = c("MEAN","EM","RF","MEDIAN","KNN","SVD")
+  all.methods <- c("MEAN","EM","RF","MEDIAN","KNN","SVD")
   
   if(!any(method%in%all.methods) || missing(method)) {
     stop("Method missing or incorrectly specified.")
   }
   
-  if(!any(apply(geno,MARGIN=2,is.numeric()))) {
+  if(!is.numeric(geno)) {
     stop("Geno object contains non-numeric elements.")
   }
   
   if(.Platform$OS.type=="windows") { 
-    n.core=1
-    parallelize = "no"
+    n.core <- 1
+    parallelize <- "no"
   } else {
-    parallelize = "variables"
+    parallelize <- "variables"
   }
   
   data = list()
 
   if(any(method=="MEAN")) {
     print("Imputing markers using mean...")
-    data$mean = rrBLUP::A.mat(geno, impute.method="mean", n.core=n.core, return.imputed=TRUE, ...)$imputed
+    data$mean <- rrBLUP::A.mat(geno, impute.method="mean", n.core=n.core, return.imputed=TRUE, ...)$imputed
   }
   
   if(any(method=="MEDIAN")) {
     print("Imputing markers using median...")
-    data$median = randomForest::na.roughfix(geno)
+    data$median <- randomForest::na.roughfix(geno)
   }
   
   if(any(method=="EM")) {
     print("Imputing markers using EM...")
-    data$EM = rrBLUP::A.mat(geno, impute.method="EM", n.core=n.core, return.imputed=TRUE, ...)$imputed
+    data$EM <- rrBLUP::A.mat(geno, impute.method="EM", n.core=n.core, return.imputed=TRUE, ...)$imputed
   }
   
   if(any(method=="RF")) {
     print("Imputing markers using RF...")
-    cl = parallel::makeCluster(n.core)
+    cl <- parallel::makeCluster(n.core)
     doParallel::registerDoParallel(cl)
-    data$RF = missForest::missForest(geno, parallelize=parallelize, maxiter=maxiter, ...)$ximp
+    data$RF <- missForest::missForest(geno, parallelize=parallelize, maxiter=maxiter, ...)$ximp
     parallel::stopCluster(cl)
   }
   
   if(any(method=="KNN")) {
     print("Imputing markers using KNN...")
-    data$KNN = kNNI(x=geno, k=k)$x
+    data$KNN <- kNNI(x=geno, k=k)$x
   }
 
   if(any(method=="SVD")) {
     print("Imputing markers using SVD...")
-    data$SVD = bcv::impute.svd(x=geno, maxiter=maxiter, ...)$x
+    data$SVD <- bcv::impute.svd(x=geno, maxiter=maxiter, ...)$x
   }
   
   invisible(data)

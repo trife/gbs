@@ -27,7 +27,7 @@ gbs.dendro <- function(geno, df, taxa, tips, leafs, tipColors, leafColors, ...) 
   
   # Geno data integrity
   if (!is.numeric(geno)) {
-    stop("Geno must be numeric matrix.")
+    stop("Geno must be a numeric matrix.")
   }
   
   # Convert hclust object to phylo object
@@ -49,7 +49,7 @@ gbs.dendro <- function(geno, df, taxa, tips, leafs, tipColors, leafColors, ...) 
     tip.color <- rep("black",length(hc2$tip.label))
   } else {
     if(missing(tipColors)) {
-      tipColors = rainbow(length(levels(df[[tips]])))
+      tipColors <- rainbow(length(levels(df[[tips]])))
     }
     
     # Match order of the data frame matches the tips
@@ -63,9 +63,9 @@ gbs.dendro <- function(geno, df, taxa, tips, leafs, tipColors, leafColors, ...) 
   }
   
   if(missing(leafs)) {
-    edgeCols=cbind(NA, rep("black", nrow(hc2$edge)), NA, NA)
+    edgeCols <- cbind(NA, rep("black", nrow(hc2$edge)), NA, NA)
   } else {
-    edgeCols=cbind(NA, rep("black", nrow(hc2$edge)), NA, NA)
+    edgeCols <- cbind(NA, rep("black", nrow(hc2$edge)), NA, NA)
     edgeCols[,1]=hc2$tip.label[hc2$edge[,2]]
     edgeCols[,1][is.na(edgeCols[,1])]='N'
     
@@ -79,7 +79,7 @@ gbs.dendro <- function(geno, df, taxa, tips, leafs, tipColors, leafColors, ...) 
     }
     
     if(missing(leafColors)) {
-      leafColors = rainbow(length(levels(df[[leafs]])))
+      leafColors <- rainbow(length(levels(df[[leafs]])))
     }
     
     # Match the order of the data frame matches the leafs

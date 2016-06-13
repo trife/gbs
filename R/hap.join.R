@@ -8,7 +8,7 @@
 #' @param delim The file delimiter for the hap files.
 #' 
 #' @details
-#' For use with the old TASSEL 4 GBS pipeline that produced multiple files
+#' For use with the old TASSEL 4 GBS pipeline that produced multiple files.
 #' 
 #' @seealso \code{\link{hap.read}}
 #'
@@ -24,16 +24,21 @@ hap.join <- function(hap.dir,delim="\t"){
     d <- data.table::fread(input=curFile, header=TRUE, sep=delim, check.names=FALSE,data.table = F,strip.white=T)
     print(paste(nrow(d)," in file ",i,sep=""))
     d$center=i
-    joined = rbind(joined,d) # TODO merge instead of rbind, do something about extra tabs
+    
+    if(colnames(joined)!=colnames(d)) {
+      stop("Column names in hap files do not match.")
+    } else {
+      joined <- rbind(joined,d)
+    }
   }
   
   # Get rid of duplicates
-  rs_pos = cbind(joined$rs,joined$assembly)
-  dup = duplicated(rs_pos)
-  noDup = joined[!dup,]
-  odr = order(as.vector(noDup$rs), as.vector(noDup$assembly))
-  joined = noDup[odr,]
-  joined$rs = paste("rs", c(1:nrow(joined)), sep="")
+  rs_pos <- cbind(joined$rs,joined$assembly)
+  dup <- duplicated(rs_pos)
+  noDup <- joined[!dup,]
+  odr <- order(as.vector(noDup$rs), as.vector(noDup$assembly))
+  joined <- noDup[odr,]
+  joined$rs <- paste("rs", c(1:nrow(joined)), sep="")
   
   print(paste(nrow(joined)," markers total.",sep=""))
   

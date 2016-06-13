@@ -1,25 +1,29 @@
-#' Read hap file(s) or hap object.
+#' Read hap file(s) or data frame.
 #'
-#' Read a file or data frame to create a hap object
+#' Read a file or data frame to create a gbs object
 #'
 #' @author Trevor Rife, \email{trife@@ksu.edu}
 #'
-#' @param hap The hap object, file, or folder containing hap files.
+#' @param hap A data frame, file, or folder containing hap files.
 #' @param delim The delimter used in the file(s).
 #' @param data.col The column number for the first line or individual.
 #'
 #' @details
-#' If a folder is passed to \code{hap.read}, \code{hap.join} is called to merge all files within the folder and remove duplicates.
+#' This function creates a gbs object from hap files or a data frame. The gbs object contains a data frame representing the header columns, a data frame representing the genotypic calls, an empty geno data frame, and an empty stats data frame. Both the geno and stats data frames are created with the \code{gbs.summary} function. If a folder is passed to \code{hap.read}, \code{hap.join} is called to merge all files within the folder and remove duplicate tags.
 #'
 #' @return A gbs object.
 #'
 #' @examples
 #' data(wheat)
-#' hap = hap.read(wheat)
+#' hap = hap.read(raw.hap)
 #'
 #' @export
 
 hap.read <- function(hap.obj, delim="\t", data.col) {
+  
+  if(class(hap)=="gbs") {
+    stop("hap object is already of type gbs.")
+  }
   
   if(missing(data.col)) {
     stop("Specify which column contains the first individual.")
@@ -35,10 +39,10 @@ hap.read <- function(hap.obj, delim="\t", data.col) {
     }
     
     if(!file.info(hap.obj)$isdir) {
-      hap <- data.table::fread(input=hap.obj, sep=delim, check.names=FALSE, header=TRUE, data.table = F, strip.white=T)
+      hap <- data.table::fread(input=hap.obj, sep=delim, check.names=FALSE, header=TRUE, data.table=F, strip.white=T)
     }
   } else {
-    hap = hap.obj
+    hap <- hap.obj
   }
 
   row.names(hap) <- 1:nrow(hap)

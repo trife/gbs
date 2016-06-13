@@ -1,14 +1,16 @@
-#' Determine GBS diversity.
+#' GBS diversity.
 #'
-#' Calculates different measures of diveristy in a hap object.
+#' Calculates different measures of diveristy in a gbs object.
 #'
 #' @author Narinder Singh, \email{nss470@@ksu.edu}
 #' @author Trevor Rife, \email{trife@@ksu.edu}
 #'
-#' @param hap The hap object to manipulate.
+#' @param hap The gbs object to manipulate.
 #' @param clusters A data frame with row names equal to individuals and a single column dictating which group each individual belongs to.
 #' @param maf.thresh
-#' @param graph Logical option to graph percent polymorphism.
+#' @param graph A logical option to graph the percent polymorphism.
+#' @param het The symbol(s) used for heterozygous calls.
+#' @param missing The symbol(s) used for missing calls.
 #'
 #' @details
 #'
@@ -16,13 +18,11 @@
 #'
 #' @examples
 #' data(wheat)
-#' hap = hap.read(wheat)
-#' hap = filter.summary(hap,project="wheat",output="hap")$hap
-#' gbs.diversity(hap,data.col=14,graph=T)
+#' gbs.diversity(hap,graph=T)
 #'
 #' @export
 
-gbs.diversity <- function(hap, clusters=NULL, maf.thresh=0.05, graph=F){
+gbs.diversity <- function(hap, clusters=NULL, maf.thresh=0.05, graph=F, het="H", missing="N") {
   
   if(class(hap)!="gbs") {
     stop("hap argument is incorrect type. Use hap.read to create gbs object.")
@@ -30,17 +30,17 @@ gbs.diversity <- function(hap, clusters=NULL, maf.thresh=0.05, graph=F){
   
   output = list()
   
-  a = substr(hap$header$alleles,1,1)
-  b = substr(hap$header$alleles,3,3)
+  a <- substr(hap$header$alleles,1,1)
+  b <- substr(hap$header$alleles,3,3)
   
   # Recalculate allele counts
-  missing = rowSums(hap$calls == "N", na.rm = T) # TODO change for IUPAC
-  het = rowSums(hap$calls == "H", na.rm = T) # TODO change for IUPAC
-  alleleA = rowSums(hap$calls == a, na.rm = T)*2 + het
-  alleleB = rowSums(hap$calls == b, na.rm = T)*2 + het
+  missing <- rowSums(hap$calls == missing, na.rm = T)
+  het <- rowSums(hap$calls == het, na.rm = T)
+  alleleA <- rowSums(hap$calls == a, na.rm = T)*2 + het
+  alleleB <- rowSums(hap$calls == b, na.rm = T)*2 + het
   
   # Minor allele frequency
-  maf = apply(cbind(alleleA, alleleB), 1, min) / apply(cbind(alleleA, alleleB), 1, sum)
+  maf <- apply(cbind(alleleA, alleleB), 1, min) / apply(cbind(alleleA, alleleB), 1, sum)
   
   # Graph proportion of polymorphism
   if(graph) {
@@ -54,15 +54,15 @@ gbs.diversity <- function(hap, clusters=NULL, maf.thresh=0.05, graph=F){
   }
   
   # Nei's diversity index
-  nei = mean(1-(maf^2)-(1-maf)^2, na.rm = T)
+  nei <- mean(1-(maf^2)-(1-maf)^2, na.rm = T)
   cat("Nei's diversity index:", nei,"\n")
   output$nei = nei
   
   # TODO FST
   if(is.null(clusters)) {
-    cat("Clusters not specified; unable to calculate FST.")
+    cat("Clusters not specified. Unable to calculate FST.")
   } else {
-    output$fst = NULL
+    output$fst <- NULL
   }
   
   invisible(output)
