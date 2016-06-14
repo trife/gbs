@@ -22,7 +22,7 @@
 hap.read <- function(hap.obj, delim="\t", data.col) {
 
   if(class(hap.obj)=="gbs") {
-     cat("hap object is already of type gbs.")
+     cat(substitute(hap.obj), "is already of type gbs.")
      opt <- options(show.error.messages=FALSE)
      on.exit(options(opt))
     stop()
