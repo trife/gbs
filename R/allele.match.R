@@ -5,7 +5,7 @@
 #' @author Narinder Singh, \email{nss470@@ksu.edu}
 #' @author Trevor Rife, \email{trife@@ksu.edu}
 #'
-#' @param hap A matrix or data frame consisting consisting of rows (markers) and columns (individuals).
+#' @param hap An object of type gbs.
 #' @param result The values to be returned. Either the number of matched calls (\code{count}), \code{percent} identitiy, or both.
 #' @param histgraph Logical value to graph results.
 #'
@@ -21,15 +21,19 @@
 #' @export
 
 allele.match <- function(hap, result=c("count","percent"), graph=F) {
-  
+
+   if(class(hap)!="gbs") {
+      stop("Supplied dataset object is not of type gbs. Please use hap.read() to create gbs object first.")
+   }
+
   if(!"count"%in%result && !"percent"%in%result) {
     stop("Result type must be specified.")
   }
 
-  allele.match <- hap
+  allele.match <- hap$calls
 
   cat('\n')
-  message("Supplied dataset has ", nrow(hap), " SNPs and ", ncol(hap), " individuals.")
+  message("Supplied dataset has ", nrow(allele.match), " SNPs and ", ncol(allele.match), " individuals.")
   message('Computing percent identity...')
   cat('\n')
 
@@ -65,15 +69,15 @@ allele.match <- function(hap, result=c("count","percent"), graph=F) {
 
   if(graph) {
     par(mfrow=c(1,2))
-    
+
     if(any(result == "percent")) {
       hist(id[upper.tri(id)]*100, xlab = paste('%', 'identity'), main = 'Distribution of % identity')
     }
-    
+
     if(any(result == "count")) {
       hist(id[lower.tri(id)], xlab = '# of comparisons', main = 'Distribution of # comparisons')
     }
-    
+
     par(mfrow=c(1,1))
   }
 
