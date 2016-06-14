@@ -7,7 +7,7 @@ Description: An assortment of functions for processing, analyzing, and visualizi
 Depends:
     R (>= 3.0.3)
 Imports:
-   data.table, stats, ape, picante, rrBLUP, lattice, parallel, doParallel, randomForest, missForest, DMwR, bcv
+   data.table, stats, ape, picante, rrBLUP, lattice, parallel, doParallel, randomForest, missForest, DMwR, bcv, adegenet, hierfstat
 License: GPL2
 LazyData: false
 RoxygenNote: 5.0.1
