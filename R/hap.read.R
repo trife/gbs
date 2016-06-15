@@ -20,24 +20,27 @@
 #' @export
 
 hap.read <- function(hap.obj, delim="\t", data.col) {
-  
-  if(class(hap)=="gbs") {
-    stop("hap object is already of type gbs.")
+
+  if(class(hap.obj)=="gbs") {
+     cat(substitute(hap.obj), "is already of type gbs.")
+     opt <- options(show.error.messages=FALSE)
+     on.exit(options(opt))
+    stop()
   }
-  
+
   if(missing(data.col)) {
     stop("Specify which column contains the first individual.")
   }
-  
+
   if(class(hap.obj) != "data.frame") {
     if(!file.exists(hap.obj)) {
       stop("File or folder does not exist.")
     }
-    
+
     if(file.info(hap.obj)$isdir) {
       hap <- hap.join(hap.obj, delim)
     }
-    
+
     if(!file.info(hap.obj)$isdir) {
       hap <- data.table::fread(input=hap.obj, sep=delim, check.names=FALSE, header=TRUE, data.table=F, strip.white=T)
     }
@@ -48,7 +51,7 @@ hap.read <- function(hap.obj, delim="\t", data.col) {
   row.names(hap) <- 1:nrow(hap)
   header <- hap[,1:(data.col-1)]
   calls <- hap[,data.col:ncol(hap)]
-  
+
   # Set class
   output <- list(header=header,calls=calls,geno=matrix(),stats=data.frame())
   class(output) <- "gbs"
