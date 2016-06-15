@@ -22,9 +22,9 @@
 
 allele.match <- function(hap, result=c("count","percent"), graph=F) {
 
-   if(class(hap)!="gbs") {
-      stop("Supplied dataset object is not of type gbs. Please use hap.read() to create gbs object first.")
-   }
+  if(class(hap)!="gbs") {
+    stop("Supplied dataset object is not of type gbs. Please use hap.read() to create gbs object first.")
+  }
 
   if(!"count"%in%result && !"percent"%in%result) {
     stop("Result type must be specified.")
