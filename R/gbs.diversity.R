@@ -60,7 +60,7 @@ gbs.diversity <- function(hap, clusters=NULL, maf.thresh=0.05, graph=F, het="H",
 
   # TODO FST
   if(is.null(clusters)) {
-    cat("Clusters not specified. Unable to calculate FST.")
+    cat("Population groups not defined. Unable to calculate FST.")
   } else {
      tHapCalls <- t(hap$calls) # transformation required - ind in rows, markers in cols
      popGroups <- clusters[match(rownames(tHapCalls), clusters[,1]), ] # ordering the ind in cluster according to hap
@@ -75,7 +75,6 @@ gbs.diversity <- function(hap, clusters=NULL, maf.thresh=0.05, graph=F, het="H",
      pairwiseFst <- pairwise.fst(genidObject, pop = popGroups[,2]) # according to Nei (1973)
      output$pairwiseFst <- pairwiseFst
      cat(' Done')
-
   }
 
   invisible(output)
