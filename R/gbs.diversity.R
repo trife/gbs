@@ -6,7 +6,7 @@
 #' @author Trevor Rife, \email{trife@@ksu.edu}
 #'
 #' @param hap The gbs object to manipulate.
-#' @param clusters A data frame with two columns, where first column contain the names of individuals and second column contain the corresponding group of population to which each individual belongs to.
+#' @param clusters A data frame with two columns, where first column contain the names of individuals and second column contain the corresponding group (numeric) of population to which each individual belongs to.
 #' @param maf.thresh
 #' @param graph A logical option to graph the percent polymorphism.
 #' @param het The symbol(s) used for heterozygous calls.
