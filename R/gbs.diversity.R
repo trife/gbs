@@ -6,7 +6,7 @@
 #' @author Trevor Rife, \email{trife@@ksu.edu}
 #'
 #' @param hap The gbs object to manipulate.
-#' @param clusters A data frame with two columns, where first column contain the names of individuals and second column contain the corresponding group (numeric) of population to which each individual belongs to.
+#' @param popGroups A data frame with two columns, where first column contain the names of individuals and second column contain the corresponding group (numeric) of population to which each individual belongs to.
 #' @param maf.thresh
 #' @param graph A logical option to graph the percent polymorphism.
 #' @param het The symbol(s) used for heterozygous calls.
@@ -22,7 +22,7 @@
 #'
 #' @export
 
-gbs.diversity <- function(hap, clusters=NULL, maf.thresh=0.05, graph=F, het="H", missing="N") {
+gbs.diversity <- function(hap, popGroups=NULL, maf.thresh=0.05, graph=F, het="H", missing="N") {
 
   if(class(hap)!="gbs") {
     stop("hap argument is incorrect type. Use hap.read to create gbs object.")
@@ -59,7 +59,7 @@ gbs.diversity <- function(hap, clusters=NULL, maf.thresh=0.05, graph=F, het="H",
   output$nei = nei
 
   # TODO FST
-  if(is.null(clusters)) {
+  if(is.null(popGroups)) {
     cat("Population groups not defined. Unable to calculate FST.")
   } else {
      # Fst computation with number format
@@ -79,7 +79,7 @@ gbs.diversity <- function(hap, clusters=NULL, maf.thresh=0.05, graph=F, het="H",
      )
      cat(' Done')
 
-     popGroups <- clusters[match(rownames(lst), clusters[,1]), ] # ordering the ind in cluster according to hap
+     popGroups <- popGroups[match(rownames(lst), popGroups[,1]), ] # ordering the ind in cluster according to hap
      genidObject<-df2genind(lst, ncode = 2, NA.char = NA, sep = '/')
 
 
