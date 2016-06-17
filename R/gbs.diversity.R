@@ -55,27 +55,65 @@ gbs.diversity <- function(hap, clusters=NULL, maf.thresh=0.05, graph=F, het="H",
 
   # Nei's diversity index
   nei <- mean(1-(maf^2)-(1-maf)^2, na.rm = T)
-  cat("Nei's diversity index:", nei)
+  cat("Computing Nei's diversity index... Done")
   output$nei = nei
 
   # TODO FST
   if(is.null(clusters)) {
     cat("Population groups not defined. Unable to calculate FST.")
   } else {
-     tHapCalls <- t(hap$calls) # transformation required - ind in rows, markers in cols
-     popGroups <- clusters[match(rownames(tHapCalls), clusters[,1]), ] # ordering the ind in cluster according to hap
-     genidObject<-df2genind(tHapCalls, ncode = 1)
+     # Fst computation with number format
+     cat('\n')
+     cat('Numericalizing genotypes...')
 
+     hapCalls=as.matrix(hap.tiny$calls)
+     hapCalls[hapCalls=='N']=NA
+     lst=apply(hapCalls, 1, function(x) {
+        lev <- unique(x)
+        lev <- lev[lev!='H' & !is.na(lev)]
+        x[x=='H']=12
+        x[x==lev[1]]=11
+        x[x==lev[2]]=22
+        return(x)
+      }
+     )
+     cat(' Done')
+
+     popGroups <- clusters[match(rownames(lst), clusters[,1]), ] # ordering the ind in cluster according to hap
+     genidObject<-df2genind(lst, ncode = 2, NA.char = NA, sep = '/')
+
+
+     cat('\n')
      cat("Computing overall population Fst...")
      popFst <- fstat(genidObject, pop = popGroups[,2], fstonly = T)
      output$popFst <- popFst
      cat(' Done')
 
+     cat('\n')
      cat("computing Nei's (1973) pairwise Fst...")
-     pairwiseFst <- pairwise.fst(genidObject, pop = popGroups[,2]) # according to Nei (1973)
-     output$pairwiseFst <- pairwiseFst
+     pairwiseFstNei1973 <- pairwise.fst(genidObject, pop = popGroups[,2], res.type = "matrix") # according to Nei (1973)
+     output$pairwiseFstNei1973 <- pairwiseFstNei1973
      cat(' Done')
-  }
+
+     dat=as.data.frame(cbind(popGroups[,2],lst))
+     for (i in 1:ncol(dat)) {
+        dat[,i]=as.character(dat[,i])
+        dat[,i]=as.numeric(dat[,i])
+     }
+
+     cat('\n')
+     cat("computing Nei's (1987) pairwise Fst...")
+     pairwiseFstNei1987 <- pairwise.neifst(dat = dat)
+     output$pairwiseFstNei1987 <- pairwiseFstNei1987
+     cat(' Done')
+
+     cat('\n')
+     cat("computing Weir and Cockerham (1984) pairwise Fst...")
+     pairwiseFstWC <- pairwise.WCfst(dat = dat)
+     output$pairwiseFstWC <- pairwiseFstWC
+     cat(' Done')
+
+   }
 
   invisible(output)
 }
