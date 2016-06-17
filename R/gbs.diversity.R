@@ -47,7 +47,7 @@ gbs.diversity <- function(hap, popGroups=NULL, maf.thresh=0.05, graph=F, het="H"
     par(mfrow=c(1,2))
     polyMarkers = sum(maf >= maf.thresh)
     totalMarkers = nrow(hap$calls)
-    cat('Number of polymorphic sites:', polyMarkers,"\n")
+    cat('Number of polymorphic sites with MAF threshold:', polyMarkers,"\n")
     cat('Proportion of polymorphic sites (P):', polyMarkers / totalMarkers,"\n")
     barplot(c(polyMarkers, totalMarkers-polyMarkers), xlim = c(0,5), col = c('lightgray','black'), legend.text = c('Polymorphic','Monomorphic'), ylab = "# markers")
     pie(c(polyMarkers, totalMarkers-polyMarkers), labels = c('Polymorphic \nmarkers','Monomorphic \nmarkers'))
@@ -58,11 +58,11 @@ gbs.diversity <- function(hap, popGroups=NULL, maf.thresh=0.05, graph=F, het="H"
   cat("Computing Nei's diversity index... Done")
   output$nei = nei
 
-  # TODO FST
+  # Fst (Population Fixation index)
   if(is.null(popGroups)) {
-    cat("Population groups not defined. Unable to calculate FST.")
+    cat("Population groups not defined. Unable to calculate Fst.")
   } else {
-     # Fst computation with number format
+     # Numericalizing data
      cat('\n')
      cat('Numericalizing genotypes...')
 
@@ -112,6 +112,9 @@ gbs.diversity <- function(hap, popGroups=NULL, maf.thresh=0.05, graph=F, het="H"
      pairwiseFstWC <- pairwise.WCfst(dat = dat)
      output$pairwiseFstWC <- pairwiseFstWC
      cat(' Done')
+
+     opt <- options(warn = -1)
+     on.exit(options(opt))
 
    }
 
