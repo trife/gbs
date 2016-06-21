@@ -3,13 +3,14 @@
 #' Read a file or data frame to create a gbs object
 #'
 #' @author Trevor Rife, \email{trife@@ksu.edu}
+#' @author Narinder Singh, \email{nss470@ksu.edu}
 #'
-#' @param hap A data frame, file, or folder containing hap files.
+#' @param hap A hap file or folder containing hap file(s).
 #' @param delim The delimter used in the file(s).
 #' @param data.col The column number for the first line or individual.
 #'
 #' @details
-#' This function creates a gbs object from hap files or a data frame. The gbs object contains a data frame representing the header columns, a data frame representing the genotypic calls, an empty geno data frame, and an empty stats data frame. Both the geno and stats data frames are created with the \code{gbs.summary} function. If a folder is passed to \code{hap.read}, \code{hap.join} is called to merge all files within the folder and remove duplicate tags.
+#' This function creates a gbs object from hap file(s) or a data frame. The gbs object contains a data frame representing the header columns, a data frame representing the genotypic calls, an empty geno data frame, and an empty stats data frame. Both the geno and stats data frames are created with the \code{gbs.summary} function. If a folder is passed to \code{hap.read}, \code{hap.join} is called to merge all files within the folder and remove duplicate tags.
 #'
 #' @return A gbs object.
 #'
@@ -55,5 +56,6 @@ hap.read <- function(hap.obj, delim="\t", data.col) {
   # Set class
   output <- list(header=header,calls=calls,geno=matrix(),stats=data.frame())
   class(output) <- "gbs"
+  cat('gbs object created successfully.')
   invisible(output)
 }
