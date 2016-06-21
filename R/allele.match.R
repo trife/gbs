@@ -48,7 +48,7 @@ allele.match <- function(hap, result=c("count","percent"), graph=F) {
     line1 <- as.character(allele.match[,i])
     for (j in i:ncol(id)){
       line2 <- as.character(allele.match[,j])
-      shared <- line1!="N" & line2!="N" & line1!="H" & line2!="H" # TODO redo for IUPAC
+      shared <- line1!="N" & line2!="N" & line1!="H" & line2!="H"
       common <- line1[shared] == line2[shared]
       if(any(result == "percent")) {
         id_pc[j-i+1] <- sum(common, na.rm = T)/sum(shared, na.rm = T)
