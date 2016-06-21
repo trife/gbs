@@ -66,7 +66,7 @@ gbs.diversity <- function(hap, popGroups=NULL, maf.thresh=0.05, graph=F, het="H"
      cat('\n')
      cat('Numericalizing genotypes...')
 
-     hapCalls=as.matrix(hap.tiny$calls)
+     hapCalls=as.matrix(hap$calls)
      hapCalls[hapCalls=='N']=NA
      lst=apply(hapCalls, 1, function(x) {
         lev <- unique(x)
@@ -112,9 +112,6 @@ gbs.diversity <- function(hap, popGroups=NULL, maf.thresh=0.05, graph=F, het="H"
      pairwiseFstWC <- pairwise.WCfst(dat = dat)
      output$pairwiseFstWC <- pairwiseFstWC
      cat(' Done')
-
-     opt <- options(warn = -1)
-     on.exit(options(opt))
 
    }
 
