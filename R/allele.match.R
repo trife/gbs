@@ -22,12 +22,16 @@
 
 allele.match <- function(hap, result=c("count","percent"), graph=F) {
 
+   if(is.null(dim(hap$calls))) {
+      stop("Supplied dataset is empty!")
+   }
+
   if(class(hap)!="gbs") {
     stop("Supplied dataset object is not of type gbs. Please use hap.read() to create gbs object first.")
   }
 
   if(!"count"%in%result && !"percent"%in%result) {
-    stop("Result type must be specified.")
+    stop("A valid result type must be specified.")
   }
 
   allele.match <- hap$calls
