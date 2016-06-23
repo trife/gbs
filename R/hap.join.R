@@ -14,20 +14,30 @@
 #'
 #' @export
 
-hap.join <- function(hap.dir,delim="\t"){
+hap.join <- function(hap.dir,delim="\t",data.col){
+
+   cat('\n')
+
+   if(missing(data.col)) {
+      stop("Specify which column contains the first individual.")
+   }
+
   joined <- NULL
-  hap <- NULL
   fileList <- list.files(path=hap.dir,full.names=TRUE)
 
   for(i in 1:length(fileList)) {
     curFile <- fileList[i]
     d1 <- data.table::fread(input=fileList[1], header=TRUE, sep=delim, check.names=FALSE,data.table = F,strip.white=T)
     di <- data.table::fread(input=curFile, header=TRUE, sep=delim, check.names=FALSE,data.table = F,strip.white=T)
-    print(paste(nrow(di)," rows in ", substitute(curFile),sep=""))
+
+    hapDirPathLength = length(strsplit(curFile, "/")[[1]])
+    hapFileName = strsplit(curFile, "/")[[1]][hapDirPathLength]
+
+    cat(nrow(di), ' total rows in file "', substitute(hapFileName), '"', sep = ""); cat('\n')
     di$center=i
 
-    if(colnames(di)!=colnames(d1)) {
-      stop("Column names in hap files do not match.")
+    if(!all(colnames(di)==colnames(d1))) {
+      stop('Column names in "', hapFileName, '" do not match the column names in other files.')
     } else {
       joined <- rbind(joined,di)
     }
@@ -39,9 +49,9 @@ hap.join <- function(hap.dir,delim="\t"){
   noDup <- joined[!dup,]
   odr <- order(as.vector(noDup$rs), as.vector(noDup$assembly))
   joined <- noDup[odr,]
-  joined$rs <- paste("rs", c(1:nrow(joined)), sep="")
 
-  print(paste(nrow(joined)," markers total.",sep=""))
+  joined <- hap.read(joined, data.col = data.col)
 
+  cat('\n'); cat('\n')
   invisible(joined)
 }
