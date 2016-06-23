@@ -3,6 +3,7 @@
 #' Combines multiple hap files into a single hap object.
 #'
 #' @author Trevor Rife, \email{trife@@ksu.edu}
+#' @author Narinder Singh, \email{nss470@@ksu.edu}
 #'
 #' @param hap.dir The directory where the hap files are located. Folder should only contain the hap files.
 #' @param delim The file delimiter for the hap files.
@@ -27,13 +28,15 @@ hap.join <- function(hap.dir,delim="\t",data.col){
 
   for(i in 1:length(fileList)) {
     curFile <- fileList[i]
-    d1 <- data.table::fread(input=fileList[1], header=TRUE, sep=delim, check.names=FALSE,data.table = F,strip.white=T)
-    di <- data.table::fread(input=curFile, header=TRUE, sep=delim, check.names=FALSE,data.table = F,strip.white=T)
-
     hapDirPathLength = length(strsplit(curFile, "/")[[1]])
     hapFileName = strsplit(curFile, "/")[[1]][hapDirPathLength]
 
-    cat(nrow(di), ' total rows in file "', substitute(hapFileName), '"', sep = ""); cat('\n')
+    cat('File "', substitute(hapFileName), '" has... ', sep = "")
+    di <- data.table::fread(input=curFile, header=TRUE, sep=delim, check.names=FALSE,data.table = F,strip.white=T)
+
+    if(i==1) d1=di
+
+    cat(nrow(di), ' rows', sep = ""); cat('\n')
     di$center=i
 
     if(!all(colnames(di)==colnames(d1))) {
@@ -44,11 +47,13 @@ hap.join <- function(hap.dir,delim="\t",data.col){
   }
 
   # Get rid of duplicates
+  cat('Removing duplicate tags... ')
   rs_pos <- cbind(joined$rs,joined$assembly)
   dup <- duplicated(rs_pos)
   noDup <- joined[!dup,]
   odr <- order(as.vector(noDup$rs), as.vector(noDup$assembly))
   joined <- noDup[odr,]
+  cat('Done'); cat('\n')
 
   joined <- hap.read(joined, data.col = data.col)
 
