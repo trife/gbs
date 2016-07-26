@@ -12,6 +12,9 @@
 #' @param leafs A string representing the column in the df dataframe that contains the factors to use to color the terminal leafs.
 #' @param tipColor A vector of colors to be used for the tips.
 #' @param leafColor A vector of colors to be used for the leafs.
+#' @param leg.title A string representing the title for the legend.
+#' @param leg.cex A numerical value for the size of the legend.
+#' @param leg.color The colors to use for the legend (tipColors or leafColors).
 #' @param ... Additional graphical arguments to pass to the plot.phylo function.
 #'
 #' @details
@@ -24,7 +27,7 @@
 #'
 #' @export
 
-gbs.dendro <- function(phylo, df, taxa, tips, leafs, tipColors, leafColors, ...) {
+gbs.dendro <- function(phylo, df, taxa, tips, leafs, tipColors, leafColors, leg.title = NULL, leg.cex = 1, leg.color = tipColors, ...) {
   
   # Geno data integrity
   if (class(phylo) != "phylo") {
@@ -95,4 +98,6 @@ gbs.dendro <- function(phylo, df, taxa, tips, leafs, tipColors, leafColors, ...)
 
   # Plot
   ape::plot.phylo(hc2, tip.color = tip.color, edge.color = edgeCols[,2], ...)
+  
+  legend("bottomleft", levs, fill = leg.color, inset = 0.05, title = leg.title, cex = leg.cex)
 }
