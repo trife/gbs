@@ -7,7 +7,7 @@
 allele.match(hap, result = c("count", "percent"), graph = F)
 }
 \arguments{
-\item{hap}{A matrix or data frame consisting consisting of rows (markers) and columns (individuals).}
+\item{hap}{An object of type gbs.}
 
 \item{result}{The values to be returned. Either the number of matched calls (\code{count}), \code{percent} identitiy, or both.}
 
@@ -17,14 +17,14 @@ allele.match(hap, result = c("count", "percent"), graph = F)
 A matrix with upper triangle equal to the percent identity of the individuals and lower triangle equal to the proportion of alleles that match between two individuals.
 }
 \description{
-Compares alleles across different individuals in a gbs object.
+Compares alleles across different individuals in a hap object.
 }
 \details{
 This function ignores missing data and heterozygous calls.
 }
 \examples{
 data(wheat)
-percId = allele.match(hap,graph=T)
+percId = allele.match(hap$calls,graph=T)
 
 }
 \author{

@@ -46,7 +46,8 @@ If the a pheno data frame is included, The first column should contain the same 
 \examples{
 data(dh)
 dh = hap.collapse(dh,names=c("TIGER","DANBY"),match=0.9)
-dh.ab = hap.convert(dh,output="AB",parents=c("tiger","danby"))
+dh.ab = hap.convert(dh,output="AB",parents=c("tiger","danby"))$AB
+dh.ab[1:10,1:10]
 
 }
 \author{

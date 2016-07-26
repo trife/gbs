@@ -27,7 +27,7 @@ This function merges the calls from duplicate individuals. If a call for a given
 \examples{
 data(dh)
 dh = hap.collapse(dh,names=c("TIGER","DANBY"),match=0.9)
-head(dh)
+head(dh$calls)
 
 }
 \author{

@@ -11,7 +11,7 @@ hap.read(hap.obj, delim = "\\t", data.col)
 
 \item{data.col}{The column number for the first line or individual.}
 
-\item{hap}{A data frame, file, or folder containing hap files.}
+\item{hap}{A hap file or folder containing hap file(s).}
 }
 \value{
 A gbs object.
@@ -20,7 +20,7 @@ A gbs object.
 Read a file or data frame to create a gbs object
 }
 \details{
-This function creates a gbs object from hap files or a data frame. The gbs object contains a data frame representing the header columns, a data frame representing the genotypic calls, an empty geno data frame, and an empty stats data frame. Both the geno and stats data frames are created with the \code{gbs.summary} function. If a folder is passed to \code{hap.read}, \code{hap.join} is called to merge all files within the folder and remove duplicate tags.
+This function creates a gbs object from hap file(s) or a data frame. The gbs object contains a data frame representing the header columns, a data frame representing the genotypic calls, an empty geno data frame, and an empty stats data frame. Both the geno and stats data frames are created with the \code{gbs.summary} function. If a folder is passed to \code{hap.read}, \code{hap.join} is called to merge all files within the folder and remove duplicate tags.
 }
 \examples{
 data(wheat)
@@ -29,5 +29,7 @@ hap = hap.read(raw.hap)
 }
 \author{
 Trevor Rife, \email{trife@ksu.edu}
+
+Narinder Singh, \email{nss470@ksu.edu}
 }
 

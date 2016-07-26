@@ -4,10 +4,10 @@
 \alias{hap.join}
 \title{Bind multiple hap files together}
 \usage{
-hap.join(hap.dir, delim = "\\t")
+hap.join(hap.dir, delim = "\\t", data.col)
 }
 \arguments{
-\item{hap.dir}{The directory where the hap files are located.}
+\item{hap.dir}{The directory where the hap files are located. Folder should only contain the hap files.}
 
 \item{delim}{The file delimiter for the hap files.}
 }
@@ -19,6 +19,8 @@ For use with the old TASSEL 4 GBS pipeline that produced multiple files.
 }
 \author{
 Trevor Rife, \email{trife@ksu.edu}
+
+Narinder Singh, \email{nss470@ksu.edu}
 }
 \seealso{
 \code{\link{hap.read}}

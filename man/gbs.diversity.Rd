@@ -4,13 +4,13 @@
 \alias{gbs.diversity}
 \title{GBS diversity.}
 \usage{
-gbs.diversity(hap, clusters = NULL, maf.thresh = 0.05, graph = F,
+gbs.diversity(hap, popGroups = NULL, maf.thresh = 0.05, graph = F,
   het = "H", missing = "N")
 }
 \arguments{
 \item{hap}{The gbs object to manipulate.}
 
-\item{clusters}{A data frame with row names equal to individuals and a single column dictating which group each individual belongs to.}
+\item{popGroups}{A data frame with two columns, where first column contain the names of individuals and second column contain the corresponding group (numeric) of population to which each individual belongs to.}
 
 \item{graph}{A logical option to graph the percent polymorphism.}
 
