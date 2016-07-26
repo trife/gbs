@@ -5,7 +5,7 @@
 #' @author Trevor Rife, \email{trife@@ksu.edu}
 #' @author Narinder Singh, \email{nss470@@ksu.edu}
 #'
-#' @param geno The geno object to use for dendrogram construction.
+#' @param phylo  An object of class phylo.
 #' @param df The data frame containing the items to be plotted.
 #' @param taxa A string representing the column name in the df dataframe that contains the same names that exist in the geno object.
 #' @param tips A string representing the column in the df dataframe that contains the factors to use to color the tips.
@@ -19,20 +19,19 @@
 #'
 #' @examples
 #' data(wheat)
-#' gbs.dendro(hap$geno,phenotypes,taxa="line",tips="type",leafs="group",type="fan",edge.width=2)
+#' phylo <- as.phylo(hclust(dist(hap$geno)))
+#' gbs.dendro(phylo,phenotypes,taxa="line",tips="type",leafs="group",type="fan",edge.width=2)
 #'
 #' @export
 
-gbs.dendro <- function(geno, df, taxa, tips, leafs, tipColors, leafColors, ...) {
+gbs.dendro <- function(phylo, df, taxa, tips, leafs, tipColors, leafColors, ...) {
   
   # Geno data integrity
-  if (!is.numeric(geno)) {
-    stop("Geno must be a numeric matrix.")
+  if (class(phylo) != "phylo") {
+    stop("phylo must be a phylo object")
   }
   
-  # Convert hclust object to phylo object
-  hc <- stats::hclust(dist(geno))
-  hc2 <- ape::as.phylo(hc)
+  hc2 <- phylo
   
   # Data integrity
   len.tips <- length(hc2$tip.label)
