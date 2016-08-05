@@ -80,18 +80,18 @@ gbs.diversity <- function(hap, popGroups=NULL, maf.thresh=0.05, graph=F, het="H"
      cat(' Done')
 
      popGroups <- popGroups[match(rownames(lst), popGroups[,1]), ] # ordering the ind in cluster according to hap
-     genidObject<-df2genind(lst, ncode = 2, NA.char = NA, sep = '/')
+     genidObject <- adegenet::df2genind(lst, ncode = 2, NA.char = NA, sep = '/')
 
 
      cat('\n')
      cat("Computing overall population Fst...")
-     popFst <- fstat(genidObject, pop = popGroups[,2], fstonly = T)
+     popFst <- hierfstat::fstat(genidObject, pop = popGroups[,2], fstonly = T)
      output$popFst <- popFst
      cat(' Done')
 
      cat('\n')
      cat("computing Nei's (1973) pairwise Fst...")
-     pairwiseFstNei1973 <- pairwise.fst(genidObject, pop = popGroups[,2], res.type = "matrix") # according to Nei (1973)
+     pairwiseFstNei1973 <- hierfstat::pairwise.fst(genidObject, pop = popGroups[,2], res.type = "matrix") # according to Nei (1973)
      output$pairwiseFstNei1973 <- pairwiseFstNei1973
      cat(' Done')
 
@@ -103,13 +103,13 @@ gbs.diversity <- function(hap, popGroups=NULL, maf.thresh=0.05, graph=F, het="H"
 
      cat('\n')
      cat("computing Nei's (1987) pairwise Fst...")
-     pairwiseFstNei1987 <- pairwise.neifst(dat = dat)
+     pairwiseFstNei1987 <- hierfstat::pairwise.neifst(dat = dat)
      output$pairwiseFstNei1987 <- pairwiseFstNei1987
      cat(' Done')
 
      cat('\n')
      cat("computing Weir and Cockerham (1984) pairwise Fst...")
-     pairwiseFstWC <- pairwise.WCfst(dat = dat)
+     pairwiseFstWC <- hierfstat::pairwise.WCfst(dat = dat)
      output$pairwiseFstWC <- pairwiseFstWC
      cat(' Done')
 
