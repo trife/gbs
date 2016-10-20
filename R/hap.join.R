@@ -28,18 +28,21 @@ hap.join <- function(hap.dir,delim="\t",data.col){
 
   for(i in 1:length(fileList)) {
     curFile <- fileList[i]
+
+    # extracting filename
     hapDirPathLength = length(strsplit(curFile, "/")[[1]])
     hapFileName = strsplit(curFile, "/")[[1]][hapDirPathLength]
 
     cat('File "', substitute(hapFileName), '" has... ', sep = "")
-    di <- data.table::fread(input=curFile, header=TRUE, sep=delim, check.names=FALSE,data.table = F,strip.white=T)
-
-    if(i==1) d1=di
+    di <- data.table::fread(input=curFile, header=TRUE, sep=delim, check.names=FALSE, data.table = F, strip.white=T, stringsAsFactors=F)
 
     cat(nrow(di), ' rows', sep = ""); cat('\n')
     di$center=i
 
-    if(!all(colnames(di)==colnames(d1))) {
+    if(i==1) joined=di
+    if(i==1) next
+
+    if(!all(colnames(di)==colnames(joined))) {
       stop('Column names in "', hapFileName, '" do not match the column names in other files.')
     } else {
       joined <- rbind(joined,di)
