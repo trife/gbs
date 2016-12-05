@@ -54,7 +54,7 @@ hap.read <- function(hap.obj, delim="\t", data.col) {
   calls <- hap[,data.col:ncol(hap)]
 
   # Set class
-  output <- list(header=header,calls=calls,geno=matrix(),stats=data.frame())
+  output <- list(header=header,calls=calls)
   class(output) <- "gbs"
   cat('gbs object created successfully with', nrow(calls), 'markers and', ncol(calls), 'individuals.')
   invisible(output)
