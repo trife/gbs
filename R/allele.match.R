@@ -87,3 +87,4 @@ allele.match <- function(hap, result=c("count","percent"), graph=F) {
 
   return(id)
 }
+
